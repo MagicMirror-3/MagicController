@@ -1,3 +1,6 @@
+import os
+
+
 class User:
     def __init__(self, name=None, identifier=None):
         """
@@ -46,10 +49,12 @@ class User:
 
 class CONSTANTS:
     """
-    A static variables class
+    A class containing useful constant variables.
     """
 
+    MAGIC_MIRROR_DIR = "."  # TODO: determine reliably
+
     # ---------- [ConfigurationHandler] ---------- #
-    CONFIG_PATH = "PATH/TO/CONFIG"
-    CONFIG_FILE = "config.yml"
-    DEFAULT_CONFIG = "default_config.yml"
+    CONFIG_PATH = os.path.join(MAGIC_MIRROR_DIR, "config")
+    CONFIG_FILE = "config.js"
+    DEFAULT_CONFIG = "default_config.js"
