@@ -1,0 +1,7 @@
+while(true)
+    Detect Faces (regardless of method)
+    check if number of Faces changed comparing to last frame
+        identify faces (multiple faces ?) --> check if one matches DB
+        send update
+    else
+        do not send update 

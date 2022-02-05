@@ -1,6 +1,8 @@
 import cv2 as cv
 import face_recognition as fr
 import time
+import numpy as np
+
 
 # installation (Windows) on python 3.8
 # - install VS C++ Compiler Tools
@@ -12,12 +14,15 @@ import time
 # test for package face_recognition and own implementation with opencv and FaceNet
 # benchmark these options on the raspberry pi
 
+# also try haar classifier
+
 # 1: Take Webcam image
 # 2: detect own face
 # 3: extract Face embeddings
 # 4: Try to match own faces
 
 capture = cv.VideoCapture(0)
+encoding_old = []
 
 while True:
     isTrue, frame = capture.read()
@@ -35,12 +40,17 @@ while True:
     for (y1, x2, y2, x1) in face_locations:
         face = frame[y1:y2, x1:x2]
         encoding = fr.face_encodings(face, known_face_locations=face_locations)
-        print(encoding)
+
+        if encoding_old:
+            # calculate euclidean distance to last frame
+            print(np.linalg.norm(encoding[0] - encoding_old[0]))
+        encoding_old = encoding
+        # print(encoding)
         cv.imshow("face", face)
 
     # ---------------------------
     end = time.time()
-    print(face_locations, " fps: ", round(1 / (end - start), 1))
+    # print(face_locations, " fps: ", round(1 / (end - start), 1))
 
     cv.imshow('Video', frame)
     if cv.waitKey(20) & 0xFF == ord('d'):
