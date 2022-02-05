@@ -38,17 +38,16 @@ class FaceAuth:
             return "unknown", -1
 
 
-# load images for registring
+# load images for registering
 r1 = cv.imread("images/known/rock1.jpg")
 r2 = cv.imread("images/known/redcliffe1.jpg")
 r3 = cv.imread("images/known/craig1.jpg")
-
 auth = FaceAuth()
 auth.register_face("Rock", r1)
 auth.register_face("redcliffe", r2)
 auth.register_face("craig", r3)
 
-# testing
+# testing data
 tests = [
     ["craig", cv.imread("images/known/craig2.jpg")],
     ["craig", cv.imread("images/known/craig3.jpg")],
@@ -62,9 +61,6 @@ tests = [
     ["unknown", cv.imread("images/unknown/4.jpg")]
 ]
 
-# train with 3 people
-# 3 other images of each of those people + 20 other images
-
 for test in tests:
     image = test[1]
     name = test[0]
@@ -74,4 +70,3 @@ for test in tests:
         print(f"Predicted face: {predicted_name} Actual face: {name} Distance: {distance}")
     except:
         print("error")
-

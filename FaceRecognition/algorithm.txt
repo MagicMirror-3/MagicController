@@ -4,4 +4,36 @@ while(true)
         identify faces (multiple faces ?) --> check if one matches DB
         send update
     else
-        do not send update 
+        do not send update
+
+--> implement this! --> Maybe save person name on buttonpress
+
+
+Things to consider:
+
+Pipeline:
+- Face Detection
+- Normalization
+- Face Identification
+
+Which Library for Face Detection/Normalization:
+- face_recognition
+- deepface --> which wrapper ?
+
+Which Library for Face Identification ? --> generate Face embedding
+
+How to store Face Embedding ?
+- Database
+- In memory
+
+How to determine match ?
+- Single Match
+- Take multiple images
+    - KNN
+    - SVM
+    - store average/median image
+
+What is crutial for timing:
+- Detect Face
+- Normalization
+- calculate embedding
