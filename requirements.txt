@@ -3,3 +3,5 @@ cmake
 dlib
 face_recognition
 numpy~=1.22.1
+deepface~=0.0.72
+imutils

@@ -21,36 +21,51 @@ import numpy as np
 # 3: extract Face embeddings
 # 4: Try to match own faces
 
+# Detection
+DLIB = False
+Haar = True
+
+# Recognition
+DLIB_REC = False
+
 capture = cv.VideoCapture(0)
 encoding_old = []
+face_detector = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 while True:
     isTrue, frame = capture.read()
     start = time.time()
     # ---------------------------
 
+    face_locations = []
+
     # detect faces in image
-    face_locations = fr.face_locations(frame, model="hog")
+    if DLIB:
+        face_locations = fr.face_locations(frame, model="hog")
+    elif Haar:
+        face_locations = face_detector.detectMultiScale(frame, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50))
+        face_locations = [(y, x + w, y + h, x) for (x, y, w, h) in face_locations]
 
     # draw rectangles for faces
     for f1, f2, f3, f4 in face_locations:
         frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
 
     # extract faces from image
-    for (y1, x2, y2, x1) in face_locations:
-        face = frame[y1:y2, x1:x2]
-        encoding = fr.face_encodings(face, known_face_locations=face_locations)
+    if DLIB_REC:
+        # for (y1, x2, y2, x1) in face_locations:
+            # face = frame[y1:y2, x1:x2]
+        encodings = fr.face_encodings(frame, known_face_locations=face_locations)
 
-        if encoding_old:
-            # calculate euclidean distance to last frame
-            print(np.linalg.norm(encoding[0] - encoding_old[0]))
-        encoding_old = encoding
-        # print(encoding)
-        cv.imshow("face", face)
+        for encoding in encodings:
+            if encoding_old:
+                # calculate euclidean distance to last frame
+                print(np.linalg.norm(encoding - encoding_old[0]))
+        encoding_old = encodings
+                # cv.imshow("face", face)
 
     # ---------------------------
     end = time.time()
-    # print(face_locations, " fps: ", round(1 / (end - start), 1))
+    print(face_locations, " fps: ", round(1 / (end - start), 1))
 
     cv.imshow('Video', frame)
     if cv.waitKey(20) & 0xFF == ord('d'):

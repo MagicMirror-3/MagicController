@@ -1,6 +1,6 @@
 while(true)
     Detect Faces (regardless of method)
-    check if number of Faces changed comparing to last frame
+    check if number of Faces changed comparing to last frame --> jitters ?
         identify faces (multiple faces ?) --> check if one matches DB
         send update
     else
@@ -8,10 +8,9 @@ while(true)
 
 --> implement this! --> Maybe save person name on buttonpress
 
-
 Things to consider:
 
-Pipeline:
+Pipeline (detect, align, normalize, represent):
 - Face Detection
 - Normalization
 - Face Identification
