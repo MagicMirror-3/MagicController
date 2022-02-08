@@ -3,7 +3,7 @@ import time
 
 import cv2 as cv
 import face_recognition as fr
-import imutils
+from imutils.video import VideoStream
 from threading import Timer
 
 import numpy as np
@@ -30,7 +30,8 @@ class FaceAuth:
             self.users = []
 
         self.active = True
-        self.capture = cv.VideoCapture(0)
+        # self.capture = VideoStream(src=0).start()
+        self.capture = VideoStream(usePiCamera=True).start()
         self.buffer_size = 50
         self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.last_number_faces = 0
@@ -95,7 +96,7 @@ class FaceAuth:
 
         # main loop
         while self.active:
-            _, frame = self.capture.read()
+            frame = self.capture.read()
 
             # scale image down
             # frame = imutils.resize(frame, width=500)
@@ -164,7 +165,7 @@ class FaceAuth:
             if cv.waitKey(20) & 0xFF == ord('d'):
                 break
 
-        self.capture.release()
+        self.capture.stop()
         cv.destroyAllWindows()
 
     def detected_unknown_face(self):
