@@ -99,7 +99,7 @@ output = MirrorFaceOutput()
 
 # register faces
 auth = FaceAuth()
-auth.register_face("Niklas", cv.imread("images/known/Niklas.jpg"))
+auth.register_face("Niklas", cv.imread("images/test/Niklas.jpg"))
 auth.register_face("Craig", cv.imread("images/known/craig1.jpg"))
 
 while True:
@@ -123,6 +123,7 @@ while True:
     # buffer number of faces
     face_count_buffer.append(len(face_locations))
     face_count_buffer.pop(0)
+    # number of faces is maximum number in last x frames
     number_of_faces = max(face_count_buffer, key=face_count_buffer.count)
 
     # only check identity if number of faces has changed in last X frames
@@ -140,7 +141,9 @@ while True:
                     last_number_faces = number_of_faces
                     break
 
-            # no faces identified, after x seconds, identify again 
+            last_number_faces = number_of_faces
+
+            # no faces identified, after x seconds, identify again
             if not timer is None and not timer.is_alive():
                 timer = Timer(2, detected_unknown_face)
                 timer.start()
