@@ -1,3 +1,5 @@
+import time
+
 import cv2 as cv
 import face_recognition as fr
 import imutils
@@ -45,7 +47,10 @@ class FaceAuth:
         :return:
         """
 
+        start = time.time()
         unknown_encoding = fr.face_encodings(image, known_face_locations=[location])[0]
+        end = time.time()
+        print(f"Match: took {end-start} s")
 
         distances = []
         for name, encoding in self.users:
