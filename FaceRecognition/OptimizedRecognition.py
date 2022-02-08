@@ -36,23 +36,23 @@ class MirrorFaceOutput:
     def __init__(self):
         self.recognized_faces = dict()
         self.timeout = 5
-        self.currentIdentifiedFace = None
+        self.current_identified_user = None
 
     def face_detected(self, user_name):
-        if user_name != self.currentIdentifiedFace:
+        if user_name != self.current_identified_user:
             print(f"Identified: {user_name}")
 
-            # if the current face is not None, the timers have to be stopped
-            if self.currentIdentifiedFace is not None:
+            # if the current user is not None, the timers have to be stopped
+            if self.current_identified_user is not None:
                 # new face detected, stop all ongoing timers
-                for user, timer in self.recognized_faces.items():
+                for _, timer in self.recognized_faces.items():
                     timer.cancel()
 
                 # clear dictionary
                 self.recognized_faces.clear()
 
             # set new detected user
-            self.currentIdentifiedFace = user_name
+            self.current_identified_user = user_name
 
         # check if a timer is already in the dictionary
         if user_name in self.recognized_faces:
@@ -73,9 +73,7 @@ class MirrorFaceOutput:
         # face no longer detected
         print(f"Face from {user} no longer detected")
         self.recognized_faces.pop(user)
-        self.currentIdentifiedFace = None
-
-        # different face detected --> not none : stop timeout of all existing timers
+        self.current_identified_user = None
 
 
 # -----------------------------------------------------------------------------------
@@ -88,7 +86,7 @@ def detected_unknown_face():
 capture = cv.VideoCapture(0)
 face_detector = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
-buffer_size = 15
+buffer_size = 50
 face_count_buffer = [0] * buffer_size
 last_number_faces = 0
 
@@ -123,10 +121,10 @@ while True:
     # buffer number of faces
     face_count_buffer.append(len(face_locations))
     face_count_buffer.pop(0)
-    # number of faces is maximum number in last x frames
+    # number of faces is maximum occurring number in last x frames
     number_of_faces = max(face_count_buffer, key=face_count_buffer.count)
 
-    # only check identity if number of faces has changed in last X frames
+    # only check identity if number of faces has changed in last X frames or the detect_anyways flag is set
     if number_of_faces != last_number_faces or detect_anyways:
         detect_anyways = False
         if number_of_faces != 0:
@@ -143,15 +141,14 @@ while True:
 
             last_number_faces = number_of_faces
 
-            # no faces identified, after x seconds, identify again
+            # no faces identified, after x seconds, identify again, even if number of faces doesn´t change
             if not timer is None and not timer.is_alive():
                 timer = Timer(2, detected_unknown_face)
                 timer.start()
         else:
-            # !! should get executed, when no faces are identified  --> not 0 faces detected
-            # only unknown faces identified --> wait one second before trying again ?
+            # no faces have been detected
             last_number_faces = number_of_faces
-            output.no_faces()
+            output.no_faces() # todo: auch noch nach oben ?
 
     # draw rectangles for faces
     for f1, f2, f3, f4 in face_locations:
@@ -163,7 +160,6 @@ while True:
     # cv.imshow("face", face)
     # ---------------------------
     end = time.time()
-    # print(face_locations, " fps: ", round(1 / (end - start), 1))
 
     cv.imshow('Video', frame)
     if cv.waitKey(20) & 0xFF == ord('d'):
