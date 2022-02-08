@@ -1,3 +1,4 @@
+import pickle
 import time
 
 import cv2 as cv
@@ -18,7 +19,16 @@ class FaceAuth:
     """
 
     def __init__(self):
-        self.users = []
+        # load face embeddings from file, if file exists
+
+        try:
+            with open(r"user_embedding.p", "rb") as file:
+                user_backup = pickle.load(file)
+                self.users = user_backup
+                print("Loaded user embeddings!")
+        except FileNotFoundError:
+            self.users = []
+
         self.active = True
         self.capture = cv.VideoCapture(0)
         self.buffer_size = 50
@@ -37,6 +47,11 @@ class FaceAuth:
 
         # use first face it can find
         self.users.append((name, fr.face_encodings(image)[0]))
+        # write face embeddings to pickle file
+        with open(r"user_embedding.p", "wb") as file:
+            pickle.dump(self.users, file)
+
+        print(f"Registered new face for {name}")
 
     def match_face(self, image, location, tolerance=0.55):
         """
@@ -50,7 +65,7 @@ class FaceAuth:
         start = time.time()
         unknown_encoding = fr.face_encodings(image, known_face_locations=[location])[0]
         end = time.time()
-        print(f"Match: took {end-start} s")
+        print(f"Match: took {end - start} s")
 
         distances = []
         for name, encoding in self.users:
@@ -211,7 +226,7 @@ class MirrorFaceOutput:
         :param user:
         :return:
         """
-        
+
         # Timer has passed
         print(f"Face from {user} no longer detected")
         self.current_identified_user = None
@@ -220,8 +235,8 @@ class MirrorFaceOutput:
 def main():
     # register faces
     auth = FaceAuth()
-    auth.register_face("Niklas", cv.imread("images/test/Niklas.jpg"))
-    auth.register_face("Craig", cv.imread("images/known/craig1.jpg"))
+    # auth.register_face("Niklas", cv.imread("images/test/Niklas.jpg"))
+    # auth.register_face("Craig", cv.imread("images/known/craig1.jpg"))
 
     auth.start()
 
