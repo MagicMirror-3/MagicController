@@ -140,3 +140,4 @@ cython_debug/
 
 # IDE folder
 .idea/*
+*.mp4
