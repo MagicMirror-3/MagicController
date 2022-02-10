@@ -9,6 +9,29 @@ landmark_detector = dlib.shape_predictor('models/shape_predictor_68_face_landmar
 facerec = dlib.face_recognition_model_v1("models/dlib_face_recognition_resnet_model_v1.dat")
 cam = cv2.VideoCapture(0)
 
+
+def log_transform(image):
+    # c = 255 / (np.log(1 + np.max(image)))
+    c = 40
+
+    # erstelle Look-up-Table
+    lookUpTable = np.empty((1, 256), np.uint8)
+    for i in range(256):
+        lookUpTable[0, i] = np.clip(c * np.log(1 + i), 0, 255)
+
+    # wende Look-up-table an
+    return cv2.LUT(image, lookUpTable)
+
+
+def hist_equalization(image):
+    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return cv2.equalizeHist(image)
+
+def CLAHE(image, clipLimit=2.0, tileGridSize=(8, 8)):
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    clahe = cv2.createCLAHE(clipLimit=clipLimit, tileGridSize=tileGridSize)
+    return clahe.apply(image)
+
 while True:
     ret, image = cam.read()
     if ret:
@@ -22,17 +45,28 @@ while True:
             landmarks = landmark_detector(gray, rect)
 
             # draw rectangle to window
-            (x, y, w, h) = face_utils.rect_to_bb(rect)
-            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-            cv2.putText(image, f"Face {i + 1}", (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            # (x, y, w, h) = face_utils.rect_to_bb(rect)
+            # cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # cv2.putText(image, f"Face {i + 1}", (x - 10, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
 
             # normalize image
             face_chip = dlib.get_face_chip(image, landmarks)
 
+            face_chip = cv2.cvtColor(face_chip, cv2.COLOR_BGR2GRAY)
+            cv2.imshow("Normal", face_chip)
+
             # calculate embedding
             # face_descriptor_from_prealigned_image = facerec.compute_face_descriptor(face_chip)
 
-            cv2.imshow("Normalized", face_chip)
+            neutralized = log_transform(face_chip)
+            cv2.imshow("Log", neutralized)
+
+            hist = hist_equalization(face_chip)
+            cv2.imshow("Hist", hist)
+
+            clahe = CLAHE(face_chip, clipLimit=3.0, tileGridSize=(5, 5))
+            cv2.imshow("clahe", clahe)
+
 
             # draw landmarks
             landmarks = face_utils.shape_to_np(landmarks)  # convert to np array

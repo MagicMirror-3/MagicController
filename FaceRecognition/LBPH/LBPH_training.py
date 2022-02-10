@@ -1,3 +1,5 @@
+import json
+
 import dlib
 import cv2 as cv
 import os
@@ -6,7 +8,8 @@ import numpy as np
 
 face_detector = dlib.get_frontal_face_detector()
 landmark_detector = dlib.shape_predictor('../models/shape_predictor_5_face_landmarks.dat')
-recognizer = cv.face.LBPHFaceRecognizer_create(radius=1, neighbors=8, grid_x=8, grid_y=8)
+
+recognizer = cv.face.LBPHFaceRecognizer_create(radius=5, neighbors=8, grid_x=8, grid_y=8)
 
 
 def localize_faces(image, detector, sample=0):
@@ -41,7 +44,7 @@ for root, dirs, files in os.walk(training_images_path):
 
             if len(face_locations) != 1:
                 print(f"Error! Detected {len(face_locations)} faces")
-                break
+                continue
 
             norm_face = normalize_face(image, face_locations[0], landmark_detector)
             norm_face = cv.cvtColor(norm_face, cv.COLOR_BGR2GRAY)
@@ -56,12 +59,19 @@ print(training_labels)
 # generate ids for training labels
 unique_labels = list(set(training_labels))
 id_by_name = dict()
+name_by_id = dict()
+
 for i, label in enumerate(unique_labels):
     print(label, ":", i)
     id_by_name[label] = i
+    name_by_id[i] = label
 
 # replace labels with id
 training_labels = [id_by_name[name] for name in training_labels]
+
+# save name_by_id
+path = os.path.join(os.path.join(os.getcwd(), "training_images"), "names.json")
+json.dump(name_by_id, open(path, "w"))
 
 recognizer.train(training_images, np.array(training_labels))
 recognizer.save("trained_file.yml")
