@@ -30,8 +30,8 @@ class FaceAuth:
             self.users = []
 
         self.active = True
-        # self.capture = VideoStream(src=0).start()
-        self.capture = VideoStream(usePiCamera=True).start()
+        self.capture = VideoStream(src=0).start()
+        # self.capture = VideoStream(usePiCamera=True).start()
         self.buffer_size = 50
         self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.last_number_faces = 0
@@ -99,7 +99,7 @@ class FaceAuth:
             frame = self.capture.read()
 
             # scale image down
-            # frame = imutils.resize(frame, width=500)
+            # frame = imutils.resize(frame, width=320)
 
             frame_gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
             frame_rgb = cv.cvtColor(frame, cv.COLOR_BGR2RGB)

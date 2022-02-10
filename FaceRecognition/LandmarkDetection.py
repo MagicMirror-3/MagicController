@@ -5,7 +5,7 @@ import dlib
 import cv2
 
 face_detector = dlib.get_frontal_face_detector()
-landmark_detector = dlib.shape_predictor('models/shape_predictor_5_face_landmarks.dat')
+landmark_detector = dlib.shape_predictor('models/shape_predictor_68_face_landmarks.dat')
 facerec = dlib.face_recognition_model_v1("models/dlib_face_recognition_resnet_model_v1.dat")
 cam = cv2.VideoCapture(0)
 
