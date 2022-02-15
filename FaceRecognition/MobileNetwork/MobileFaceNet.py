@@ -52,8 +52,8 @@ class MobileFaceNet:
         start = time.time_ns()
         out = self.sess.run(self.embeddings, feed_dict=feed_dict)
         end = time.time_ns()
-        print((end - start) / 10 ** 6, "ms")
-        print(out)
+        # print((end - start) / 10 ** 6, "ms")
+        # print(out)
 
         return out
 
@@ -71,7 +71,6 @@ def main():
 
     def distance_euclid(enc1, enc2):
         return np.linalg.norm(enc1 - enc2)
-
 
     face_detector = dlib.get_frontal_face_detector()
     landmark_detector = dlib.shape_predictor('../models/shape_predictor_5_face_landmarks.dat')
