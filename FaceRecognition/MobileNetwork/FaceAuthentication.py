@@ -61,8 +61,7 @@ class FaceAuth:
 
     def extract_faces_haar(self, image):
         """
-        Extract the FIRST face from an image
-        # todo: Choose biggest known face
+        Extract the faces from a live video feed. If there are multiple faces, choose the nearest face.
         """
 
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -75,17 +74,20 @@ class FaceAuth:
             minSize=(50, 50)
         )
 
-        # make rectange object for dlib landmark detector
-        face_locations_dlib_detector = [dlib.rectangle(x, y, x + w, y + h) for (x, y, w, h) in face_locations]
+        if len(face_locations) > 0:
 
-        # todo: adjust
-        if len(face_locations_dlib_detector) > 0:
-            location = face_locations_dlib_detector[0]
+            # get the biggest face
+            faces_sizes = [w + h for (x, y, w, h) in face_locations]
+            biggest_face_location = face_locations[faces_sizes.index(max(faces_sizes))]
+
+            # make rectange object for dlib landmark detector
+            x, y, w, h = biggest_face_location
+            face_locations_dlib = dlib.rectangle(x, y, x + w, y + h)
 
             # normalize faces by detecting facial features
-            landmarks = self.landmark_detector(image, location)
+            landmarks = self.landmark_detector(image, face_locations_dlib)
             # extract, rotate and resize the image
-            face_img = dlib.get_face_chip(image, landmarks, size=112)
+            face_img = dlib.get_face_chip(image, landmarks, size=112, padding=0.3)
 
             return face_img, face_locations
         else:
@@ -93,8 +95,7 @@ class FaceAuth:
 
     def extract_face_hog(self, image):
         """
-        Extract the FIRST face from an image
-        # todo: Choose biggest known face
+        Check if there is only one face in the image, this image is used for learning a face
         """
 
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -102,15 +103,15 @@ class FaceAuth:
         # extract faces with haar classifier
         face_locations = self.detector(image_gray, 1)
 
-        # todo: adjust
-        location = face_locations[0]
-
-        # normalize faces by detecting facial features
-        landmarks = self.landmark_detector(image, location)
-        # extract, rotate and resize the image
-        face_img = dlib.get_face_chip(image, landmarks, size=112)
-
-        return face_img
+        if len(face_locations) == 1:
+            location = face_locations[0]
+            # normalize faces by detecting facial features
+            landmarks = self.landmark_detector(image, location)
+            # extract, rotate and resize the image
+            face_img = dlib.get_face_chip(image, landmarks, size=112, padding=0.3)
+            return face_img
+        else:
+            return None
 
     def register_face(self, name, image):
         """
@@ -163,6 +164,26 @@ class FaceAuth:
 
         self.active = False
 
+    def detectAndRecognize(self, image):
+        """
+
+        :param image:
+        :return:
+        """
+
+        # detect faces in image
+        face, face_locations = self.extract_faces_haar(image)
+
+        # match face to entries in database
+        if face is not None:
+            match = self.match_face(face)
+            print(match)
+            cv.imshow("face", face)
+
+            return match, face_locations
+        else:
+            return None, []
+
     def start(self):
         """
 
@@ -174,20 +195,9 @@ class FaceAuth:
             start = time.time_ns()
             frame = self.capture.read()
 
-            # scale image down
-            # frame = imutils.resize(frame, width=320)
+            match, face_locations = self.detectAndRecognize(frame)
 
-            # ---------------------------
-
-            # extract faces
-            face, face_locations = self.extract_faces_haar(frame)
-
-            # match face
-            if face is not None:
-                print(self.match_face(face))
-
-                end = time.time_ns()
-                print(1000 * 10 ** 6 / (end - start), "fps")
+            # print(1000 * 10 ** 6 / (end - start), "fps")
 
             # OpenCV returns bounding box coordinates in (x, y, w, h) order
             # but we need them in (top, right, bottom, left) order, so we
@@ -218,7 +228,7 @@ def main():
     # ret = auth.extract_faces_haar(cv.imread("images/niklas1.jpg"))
     # print(ret)
     auth.register_face("Niklas", cv.imread("images/niklas1.jpg"))
-    # auth.register_face("Craig", cv.imread("images/known/craig1.jpg"))
+    auth.register_face("Craig", cv.imread("images/craig1.jpg"))
 
     auth.start()
 
