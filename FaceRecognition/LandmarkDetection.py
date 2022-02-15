@@ -26,7 +26,7 @@ def log_transform(image):
 
 
 def hist_equalization(image):
-    # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return cv2.equalizeHist(image)
 
 
@@ -60,12 +60,12 @@ while True:
             cv2.imshow("Normal", face_chip)
 
             # calculate embedding
-            start = time.time_ns()
-            face_descriptor_from_prealigned_image = facerec.compute_face_descriptor(face_chip)
-            end = time.time_ns()
-            print((end - start) / 10 ** 6, "ms")
+            #start = time.time_ns()
+            #face_descriptor_from_prealigned_image = facerec.compute_face_descriptor(face_chip)
+            #end = time.time_ns()
+            #print((end - start) / 10 ** 6, "ms")
 
-            """
+
             neutralized = log_transform(face_chip)
             cv2.imshow("Log", neutralized)
 
@@ -75,7 +75,7 @@ while True:
             clahe = CLAHE(face_chip, clipLimit=3.0, tileGridSize=(5, 5))
             cv2.imshow("clahe", clahe)
             
-            """
+
 
             # draw landmarks
             landmarks = face_utils.shape_to_np(landmarks)  # convert to np array
