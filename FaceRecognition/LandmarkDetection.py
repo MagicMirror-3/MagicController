@@ -1,3 +1,5 @@
+import time
+
 from imutils import face_utils
 import numpy as np
 import imutils
@@ -27,10 +29,12 @@ def hist_equalization(image):
     # image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     return cv2.equalizeHist(image)
 
+
 def CLAHE(image, clipLimit=2.0, tileGridSize=(8, 8)):
     # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     clahe = cv2.createCLAHE(clipLimit=clipLimit, tileGridSize=tileGridSize)
     return clahe.apply(image)
+
 
 while True:
     ret, image = cam.read()
@@ -52,12 +56,16 @@ while True:
             # normalize image
             face_chip = dlib.get_face_chip(image, landmarks)
 
-            face_chip = cv2.cvtColor(face_chip, cv2.COLOR_BGR2GRAY)
+            # face_chip = cv2.cvtColor(face_chip, cv2.COLOR_BGR2GRAY)
             cv2.imshow("Normal", face_chip)
 
             # calculate embedding
-            # face_descriptor_from_prealigned_image = facerec.compute_face_descriptor(face_chip)
+            start = time.time_ns()
+            face_descriptor_from_prealigned_image = facerec.compute_face_descriptor(face_chip)
+            end = time.time_ns()
+            print((end - start) / 10 ** 6, "ms")
 
+            """
             neutralized = log_transform(face_chip)
             cv2.imshow("Log", neutralized)
 
@@ -66,7 +74,8 @@ while True:
 
             clahe = CLAHE(face_chip, clipLimit=3.0, tileGridSize=(5, 5))
             cv2.imshow("clahe", clahe)
-
+            
+            """
 
             # draw landmarks
             landmarks = face_utils.shape_to_np(landmarks)  # convert to np array
