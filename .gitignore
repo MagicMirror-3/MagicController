@@ -141,3 +141,4 @@ cython_debug/
 # IDE folder
 .idea/*
 *.mp4
+FaceRecognition/LBPH/training_images/
