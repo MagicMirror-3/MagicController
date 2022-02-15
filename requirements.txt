@@ -4,3 +4,4 @@ dlib
 face_recognition
 numpy~=1.22.1
 imutils
+tensorflow
