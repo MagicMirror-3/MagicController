@@ -2,6 +2,13 @@
 
 """
 https://github.com/sirius-ai/MobileFaceNet_TF/blob/master/test_nets.py
+
+https://github.com/sirius-ai/MobileFaceNet_TF/tree/master/arch/pretrained_model
+
+loading: https://stackoverflow.com/questions/51278213/what-is-the-use-of-a-pb-file-in-tensorflow-and-how-does-it-work
+
+
+load frozen graph: https://leimao.github.io/blog/Save-Load-Inference-From-TF2-Frozen-Graph/
 """
 
 import tensorflow as tf
