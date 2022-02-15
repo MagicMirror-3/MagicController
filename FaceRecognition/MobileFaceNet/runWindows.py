@@ -2,15 +2,9 @@
 https://github.com/sirius-ai/MobileFaceNet_TF/blob/master/test_nets.py
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import tensorflow as tf
 import numpy as np
-import argparse
 import time
-import sys
 import os
 import cv2 as cv
 import dlib
@@ -72,12 +66,8 @@ def main():
             # make dimension to (1,112,112,3)
             image = np.expand_dims(image, axis=0)
 
-            print("loaded image")
-
             # Load the model
             load_model("model/MobileFaceNet_9925_9680.pb")
-
-            print("loaded model")
 
             # Get input and output tensors, ignore phase_train_placeholder for it have default value.
             inputs_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("input:0")
@@ -96,6 +86,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    #image = load_image("../LBPH/training_images/Niklas/WIN_20220211_00_07_52_Pro.jpg")
-    #cv.imshow("face", image)
-    #cv.waitKey(40)
