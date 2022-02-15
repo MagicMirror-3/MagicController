@@ -9,7 +9,13 @@ import numpy as np
 face_detector = dlib.get_frontal_face_detector()
 landmark_detector = dlib.shape_predictor('../models/shape_predictor_5_face_landmarks.dat')
 
-recognizer = cv.face.LBPHFaceRecognizer_create(radius=5, neighbors=8, grid_x=8, grid_y=8)
+recognizer = cv.face.LBPHFaceRecognizer_create(radius=1, neighbors=8, grid_x=8, grid_y=8)
+
+
+def CLAHE(image, clipLimit=2.0, tileGridSize=(8, 8)):
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    clahe = cv.createCLAHE(clipLimit=clipLimit, tileGridSize=tileGridSize)
+    return clahe.apply(image)
 
 
 def localize_faces(image, detector, sample=0):
@@ -48,6 +54,9 @@ for root, dirs, files in os.walk(training_images_path):
 
             norm_face = normalize_face(image, face_locations[0], landmark_detector)
             norm_face = cv.cvtColor(norm_face, cv.COLOR_BGR2GRAY)
+
+            norm_face = CLAHE(norm_face, clipLimit=3.0, tileGridSize=(5, 5))
+
             cv.imshow("Norm faces", norm_face)
             cv.waitKey(1)
 

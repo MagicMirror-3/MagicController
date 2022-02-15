@@ -4,13 +4,16 @@ import os
 
 from sklearn.datasets import fetch_lfw_people
 
-faces_per_person = 30
+faces_per_person = 20
 number_of_people = 10
 
 lfw_people = fetch_lfw_people(min_faces_per_person=faces_per_person, resize=2.0, funneled=False, slice_=None)
 
 new_directory = os.path.join(os.getcwd(), "training_images")
-os.mkdir(new_directory)
+try:
+    os.mkdir(new_directory)
+except:
+    pass
 
 people_ids = np.array(lfw_people.target)
 images = lfw_people.images

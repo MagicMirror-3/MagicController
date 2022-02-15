@@ -8,6 +8,11 @@ import imutils
 import dlib
 import cv2 as cv
 
+def CLAHE(image, clipLimit=2.0, tileGridSize=(8, 8)):
+    # gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    clahe = cv.createCLAHE(clipLimit=clipLimit, tileGridSize=tileGridSize)
+    return clahe.apply(image)
+
 face_detector = dlib.get_frontal_face_detector()
 landmark_detector = dlib.shape_predictor('../models/shape_predictor_5_face_landmarks.dat')
 recognizer = cv.face.LBPHFaceRecognizer_create()
@@ -34,6 +39,8 @@ while True:
             norm_face = dlib.get_face_chip(image, landmarks)
             norm_face = cv.cvtColor(norm_face, cv.COLOR_BGR2GRAY)
 
+            norm_face = CLAHE(norm_face, clipLimit=3.0, tileGridSize=(5, 5))
+
             # detect faces with LBPH
             start = time.time_ns()
             id_, conf = recognizer.predict(norm_face)
@@ -41,7 +48,7 @@ while True:
 
             print((end - start) / 10 ** 6, "ms")
 
-            if conf < 1000:
+            if conf < 100:
                 person_name = id_to_names[str(id_)]
             else:
                 person_name = "Unknown"
