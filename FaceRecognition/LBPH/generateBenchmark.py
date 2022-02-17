@@ -4,10 +4,10 @@ import os
 
 from sklearn.datasets import fetch_lfw_people
 
-faces_per_person = 20
-number_of_people = 10
+faces_per_person = 30
+number_of_people = 23
 
-lfw_people = fetch_lfw_people(min_faces_per_person=faces_per_person, resize=2.0, funneled=False, slice_=None)
+lfw_people = fetch_lfw_people(min_faces_per_person=faces_per_person, resize=2.0, funneled=False, slice_=None, color=True)
 
 new_directory = os.path.join(os.getcwd(), "training_images")
 try:
