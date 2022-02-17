@@ -11,12 +11,32 @@ loading: https://stackoverflow.com/questions/51278213/what-is-the-use-of-a-pb-fi
 load frozen graph: https://leimao.github.io/blog/Save-Load-Inference-From-TF2-Frozen-Graph/
 """
 
-import tensorflow as tf
 import numpy as np
-import time
 import os
 import cv2 as cv
 import dlib
+
+
+def import_tensorflow():
+    # Filter tensorflow version warnings
+    import os
+    # https://stackoverflow.com/questions/40426502/is-there-a-way-to-suppress-the-messages-tensorflow-prints/40426709
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
+    import warnings
+    # https://stackoverflow.com/questions/15777951/how-to-suppress-pandas-future-warning
+    warnings.simplefilter(action='ignore', category=FutureWarning)
+    warnings.simplefilter(action='ignore', category=Warning)
+    import tensorflow as tf
+    tf.get_logger().setLevel('INFO')
+    tf.autograph.set_verbosity(0)
+    import logging
+    tf.get_logger().setLevel(logging.ERROR)
+    return tf
+
+
+tf = import_tensorflow()
+
+# --------------------------------------------------------------------------------------------------------------
 
 
 class MobileFaceNet:
@@ -27,12 +47,13 @@ class MobileFaceNet:
         self.inputs_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("input:0")
         self.embeddings = tf.compat.v1.get_default_graph().get_tensor_by_name("embeddings:0")
 
-    def load_model(self, model):
+    @staticmethod
+    def load_model(model_path):
         # Check if the model is a model directory (containing a metagraph and a checkpoint file)
         #  or if it is a protobuf file with a frozen graph
-        model_exp = os.path.expanduser(model)
+        model_exp = os.path.expanduser(model_path)
         if os.path.isfile(model_exp):
-            print('Model filename: %s' % model_exp)
+            print("Loaded MobileFaceNet model")
             with tf.compat.v1.gfile.GFile(model_exp, 'rb') as f:
                 graph_def = tf.compat.v1.GraphDef()
                 graph_def.ParseFromString(f.read())
@@ -40,10 +61,8 @@ class MobileFaceNet:
         else:
             print('Found no .pb file')
 
-    def preprocess_image(self, img):
-        """
-
-        """
+    @staticmethod
+    def preprocess_image(img):
 
         img = img - 127.5
         img = img * 0.0078125
@@ -53,14 +72,9 @@ class MobileFaceNet:
     def calculate_embedding(self, img):
         img = self.preprocess_image(img)
 
-        # input dict
         feed_dict = {self.inputs_placeholder: img}
 
-        start = time.time_ns()
         out = self.sess.run(self.embeddings, feed_dict=feed_dict)
-        end = time.time_ns()
-        # print((end - start) / 10 ** 6, "ms")
-        # print(out)
 
         return out
 
