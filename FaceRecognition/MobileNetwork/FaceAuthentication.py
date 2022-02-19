@@ -1,4 +1,5 @@
 import pickle
+import platform
 import time
 
 import cv2 as cv
@@ -183,9 +184,11 @@ class FaceAuthentication:
 
         :return:
         """
-
-        capture = VideoStream(src=0).start()
-        # self.capture = VideoStream(usePiCamera=True).start()
+        print(platform.machine())
+        if platform.machine() == "armv7l":
+            capture = VideoStream(usePiCamera=True).start()
+        else:
+            capture = VideoStream(src=0).start()
 
         # main loop
         while self.active:
