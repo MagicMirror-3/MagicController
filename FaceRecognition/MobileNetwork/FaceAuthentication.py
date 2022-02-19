@@ -8,7 +8,8 @@ from threading import Timer
 
 import numpy as np
 
-from MobileFaceNet import MobileFaceNet
+from MobileFaceNetStandard import MobileFaceNetStandard
+from MobileFaceNetLite import MobileFaceNetLite
 
 
 class FaceAuthentication:
@@ -40,7 +41,8 @@ class FaceAuthentication:
         self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.landmark_detector = dlib.shape_predictor('../models/shape_predictor_5_face_landmarks.dat')
         self.detector = dlib.get_frontal_face_detector()
-        self.net = MobileFaceNet()
+        self.net = MobileFaceNetLite()
+        self.net.load_model("model/MobileFaceNet.tflite")
         self.timer = None
 
     def detect_biggest_face(self, image):
@@ -173,6 +175,9 @@ class FaceAuthentication:
 
         self.active = False
 
+    def delete_all_users(self):
+        self.users = []
+
     def live_recognition(self):
         """
 
@@ -184,12 +189,14 @@ class FaceAuthentication:
 
         # main loop
         while self.active:
-            start = time.time_ns()
+
             frame = capture.read()
 
+            start = time.time()
             match, distance, face_location = self.match_face(frame)
-            if match is not None:
-                print(f"Identified {match}, Dist: {round(distance,4)}")
+            end = time.time()
+            if match is not None and distance is not None:
+                print(f"Identified {match}, Dist: {round(distance,4)}, FPS: {1/(end-start)}")
 
             # print(1000 * 10 ** 6 / (end - start), "fps")
 

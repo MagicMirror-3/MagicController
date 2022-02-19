@@ -1,0 +1,16 @@
+tflite_convert
+  --graph_def_file=MobileFaceNet.pb
+  --enable_v1_converter
+  --output_format=TFLITE
+  --output_file=mobilenet_v2_new.tflite
+  --inference_type=QUANTIZED_UINT8
+  --input_arrays=input
+  --output_arrays=embeddings
+  --input_shapes=1,112,112,3
+  --mean_values=128 --std_dev_values=127
+  --default_ranges_min=0 --default_ranges_max=255
+
+  tflite_convert --graph_def_file=MobileFaceNet.pb --enable_v1_converter --output_format=TFLITE --output_file=MobileFaceNet.tflite --inference_type=QUANTIZED_UINT8 --input_arrays=input --output_arrays=embeddings --input_shapes=1,112,112,3 --mean_values=128 --std_dev_values=127 --default_ranges_min=0 --default_ranges_max=255
+
+  # Working !!!
+  tflite_convert --graph_def_file=MobileFaceNet.pb --enable_v1_converter --output_format=TFLITE --output_file=MobileFaceNet.tflite --input_arrays=input --output_arrays=embeddings --input_shapes=1,112,112,3
