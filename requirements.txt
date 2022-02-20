@@ -1,4 +1,4 @@
-opencv-contrib-python
+opencv-python
 cmake
 dlib
 numpy
