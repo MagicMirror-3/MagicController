@@ -6,8 +6,7 @@ RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" |
 
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
-# maybe also: libgl1-mesa-glx
-RUN apt-get update && apt-get install -y cmake python3-tflite-runtime
+RUN apt-get update && apt-get install -y python3-tflite-runtime
 
 # maybe
 RUN pip3 install --upgrade pip setuptools wheel
@@ -23,3 +22,13 @@ RUN pip3 install imutils
 RUN pip3 install "picamera[array]"
 
 COPY ./FaceRecognition/MobileNetwork /
+
+
+# !!! --no-cache-dir
+
+# no cmake
+# requirements just from pip:
+#numpy>=1.20.0
+#opencv-python~=4.5.3.56
+#tflite-runtime>=2.7.0
+#tflite-support>=0.3.1
