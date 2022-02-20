@@ -1,5 +1,5 @@
 opencv-contrib-python==4.5.3.56
 cmake
 dlib
-numpy~=1.22.1
+numpy
 imutils
