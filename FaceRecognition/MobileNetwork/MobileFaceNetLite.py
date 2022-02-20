@@ -3,12 +3,9 @@ import platform
 
 import numpy as np
 
-from MobileFaceNet import MobileFaceNet, import_tensorflow
+from MobileFaceNet import MobileFaceNet
 
-if platform.machine() == "armv7l":
-    from tflite_runtime.interpreter import Interpreter
-else:
-    Interpreter = import_tensorflow().lite.Interpreter
+from tflite_runtime.interpreter import Interpreter
 
 
 class MobileFaceNetLite(MobileFaceNet):
