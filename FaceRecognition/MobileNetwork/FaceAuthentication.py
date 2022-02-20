@@ -9,7 +9,6 @@ from threading import Timer
 
 import numpy as np
 
-from MobileFaceNetStandard import MobileFaceNetStandard
 from MobileFaceNetLite import MobileFaceNetLite
 
 
