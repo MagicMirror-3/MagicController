@@ -1,10 +1,14 @@
 import os
+import platform
 
 import numpy as np
 
 from MobileFaceNet import MobileFaceNet, import_tensorflow
 
-tf = import_tensorflow()
+if platform.machine() == "armv7l":
+    from tflite_runtime.interpreter import Interpreter
+else:
+    Interpreter = import_tensorflow().lite.Interpreter
 
 
 class MobileFaceNetLite(MobileFaceNet):
@@ -18,7 +22,7 @@ class MobileFaceNetLite(MobileFaceNet):
         model_exp = os.path.expanduser(model_path)
         if os.path.isfile(model_exp):
             # Load the TFLite model and allocate tensors.
-            self.interpreter = tf.lite.Interpreter(model_path=model_path)
+            self.interpreter = Interpreter(model_path=model_path)
             self.interpreter.allocate_tensors()
 
             # Get input and output tensors.

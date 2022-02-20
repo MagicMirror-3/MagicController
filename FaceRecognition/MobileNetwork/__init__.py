@@ -1,2 +1,2 @@
-from .MobileFaceNet import MobileFaceNet
+from .MobileFaceNetStandard import MobileFaceNetStandard
 from .FaceAuthentication import FaceAuthentication
