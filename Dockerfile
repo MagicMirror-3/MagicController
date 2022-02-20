@@ -10,12 +10,6 @@ RUN apt-get update && apt-get install python3 python3-pip -y
 
 RUN pip3 install https://github.com/google-coral/pycoral/releases/download/release-frogfish/tflite_runtime-2.5.0-cp37-cp37m-linux_armv7l.whl
 
-RUN git clone -b PyDeploy https://github.com/n1klasD/MagicController.git
+RUN pip3 install opencv-python==4.5.3.56 dlib numpy imutils
 
-WORKDIR /MagicController
-
-RUN pip3 install -r requirements.txt
-
-# execute script
-WORKDIR /MagicController/FaceRecognition/MobileNetwork
-CMD ["python3","FaceAuthentication.py"]
+COPY ./FaceRecognition/MobileNetwork /
