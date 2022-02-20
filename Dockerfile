@@ -14,7 +14,7 @@ RUN pip3 install --upgrade pip setuptools wheel
 
 RUN pip3 install https://github.com/google-coral/pycoral/releases/download/release-frogfish/tflite_runtime-2.5.0-cp37-cp37m-linux_armv7l.whl
 
-RUN pip3 install opencv-python==4.5.3.56
+RUN pip3 install opencv-python
 
 RUN pip3 install dlib
 
