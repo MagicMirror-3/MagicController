@@ -12,9 +12,7 @@ RUN pip3 install https://github.com/google-coral/pycoral/releases/download/relea
 
 RUN git clone -b PyDeploy https://github.com/n1klasD/MagicController.git
 
-RUN cd /MagicController
-
-RUN git checkout PyDeploy
+WORKDIR /MagicController
 
 RUN pip3 install -r requirements.txt
 
