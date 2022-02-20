@@ -7,12 +7,10 @@ RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" |
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
 # maybe also: libgl1-mesa-glx
-RUN apt-get update && apt-get install cmake python3 python3-pip libssl-dev -y
+RUN apt-get update && apt-get install cmake python3 python3-pip python3-tflite-runtime -y
 
 # maybe
 RUN pip3 install --upgrade pip setuptools wheel
-
-RUN pip3 install https://github.com/google-coral/pycoral/releases/download/release-frogfish/tflite_runtime-2.5.0-cp37-cp37m-linux_armv7l.whl
 
 RUN pip3 install opencv-python-headless
 
