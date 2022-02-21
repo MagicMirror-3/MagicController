@@ -6,6 +6,7 @@ import cv2 as cv
 import dlib
 from imutils.video import VideoStream
 from threading import Timer
+import os
 
 import numpy as np
 
@@ -37,12 +38,16 @@ class FaceAuthentication:
         else:
             self.users = []
 
+        dirname = os.path.dirname(__file__)
+        path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
+        path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
+
         self.active = True
         self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
-        self.landmark_detector = dlib.shape_predictor('../models/shape_predictor_5_face_landmarks.dat')
+        self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
         self.net = MobileFaceNetLite()
-        self.net.load_model("model/MobileFaceNet.tflite")
+        self.net.load_model(path_mobile_face_net)
         self.timer = None
 
     def detect_biggest_face(self, image):
@@ -198,7 +203,7 @@ class FaceAuthentication:
             match, distance, face_location = self.match_face(frame)
             end = time.time()
             if match is not None and distance is not None:
-                print(f"Identified {match}, Dist: {round(distance,4)}, FPS: {1/(end-start)}")
+                print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
 
             # print(1000 * 10 ** 6 / (end - start), "fps")
 
@@ -242,8 +247,14 @@ def localize_faces(image, detector, sample=1):
 def main():
     # register faces
     auth = FaceAuthentication()
-    auth.register_face("Niklas", cv.imread("images/niklas1.jpg"))
-    auth.register_face("Craig", cv.imread("images/craig1.jpg"))
+
+    dirname = os.path.dirname(__file__)
+
+    path_niklas = os.path.join(dirname, "images/niklas1.jpg")
+    path_craig = os.path.join(dirname, "images/craig1.jpg")
+
+    auth.register_face("Niklas", cv.imread(path_niklas))
+    auth.register_face("Craig", cv.imread(path_craig))
 
     auth.live_recognition()
 
