@@ -19,7 +19,7 @@ RUN pip3 install --no-cache-dir tflite-support>=0.3.1 dlib imutils
 RUN pip3 install --no-cache-dir numpy>=1.20.0
 RUN pip3 install --no-cache-dir opencv-python~=4.5.3.56
 
-RUN apt update && RUN apt-get install libraspberrypi-bin -y
+RUN apt update && apt-get install libraspberrypi-bin -y
 RUN usermod -a -G video root
 
 ENV READTHEDOCS True
