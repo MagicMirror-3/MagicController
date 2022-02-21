@@ -19,6 +19,8 @@ RUN pip3 install --no-cache-dir tflite-support>=0.3.1 dlib imutils
 RUN pip3 install --no-cache-dir numpy>=1.20.0
 RUN pip3 install --no-cache-dir opencv-python~=4.5.3.56
 
+ENV READTHEDOCS True
+
 RUN pip3 install "picamera[array]"
 
 COPY ./FaceRecognition/MobileNetwork /
