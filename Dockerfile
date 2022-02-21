@@ -21,7 +21,8 @@ RUN pip3 install --no-cache-dir opencv-python~=4.5.3.56
 
 ENV READTHEDOCS True
 
-RUN pip3 install "picamera[array]"
+#RUN pip3 install "picamera[array]"
+RUN pip3 install --no-cache-dir picamera
 
 COPY ./FaceRecognition/MobileNetwork /
 
