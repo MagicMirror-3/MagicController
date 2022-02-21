@@ -1,14 +1,16 @@
-# import the necessary packages
-from picamera.array import PiRGBArray
-from picamera import PiCamera
-import time
+import cv2
 
-# initialize the camera and grab a reference to the raw camera capture
-camera = PiCamera()
-rawCapture = PiRGBArray(camera)
-# allow the camera to warmup
-time.sleep(0.3)
-# grab an image from the camera
-camera.capture(rawCapture, format="bgr")
-image = rawCapture.array
-print(image)
+# open camera
+cap = cv2.VideoCapture('/dev/vchiq', cv2.CAP_V4L)
+
+# set dimensions
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+
+# take frame
+ret, frame = cap.read()
+print(ret, frame)
+# write frame to file
+cv2.imwrite('image.jpg', frame)
+# release camera
+cap.release()
