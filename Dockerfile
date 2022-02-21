@@ -1,8 +1,10 @@
-FROM 1646552/bullseye_opencv_tflite:0.1
+FROM arm32v7/python:3.9.7-buster
+
+RUN pip install --upgrade pip setuptools wheel
 
 ENV READTHEDOCS True
 
-RUN pip3 install --no-cache-dir "picamera[array]"
+RUN pip install --no-cache-dir picamera
 
 COPY ./FaceRecognition /
 
