@@ -1,6 +1,6 @@
 FROM python:3.9-bullseye
 
-RUN apt update && apt-get install curl gnupg ca-certificates zlib1g-dev libjpeg-dev git -y
+RUN apt update && apt-get install curl gnupg ca-certificates zlib1g-dev libjpeg-dev git cmake -y
 
 RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list
 
