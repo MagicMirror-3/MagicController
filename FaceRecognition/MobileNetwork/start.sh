@@ -2,4 +2,4 @@
 # content: SUBSYSTEM=="vchiq",MODE="0666"
 
 docker run -it --privileged=true -v /opt/vc:/opt/vc --env LD_LIBRARY_PATH=/opt/vc/lib --device /dev/vchiq tf-lite:0.1
-
+docker run -it --privileged=true -v /opt/vc:/opt/vc --env LD_LIBRARY_PATH=/opt/vc/lib --device /dev/vchiq camera:0.1
