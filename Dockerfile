@@ -21,20 +21,11 @@ RUN pip3 install --no-cache-dir opencv-python~=4.5.3.56
 
 ENV READTHEDOCS True
 
-#RUN pip3 install "picamera[array]"
 RUN pip3 install --no-cache-dir picamera
 
 COPY ./FaceRecognition/MobileNetwork /
 
+CMD ["python3", "FaceAuthentication.py"]
 
-# !!! --no-cache-dir
-
-# no cmake
-# requirements just from pip:
-
-#numpy>=1.20.0
-#opencv-python~=4.5.3.56
-#tflite-runtime>=2.7.0
-#tflite-support>=0.3.1
-# dlib
-# imutils
+# get camera working
+# get
