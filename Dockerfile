@@ -10,7 +10,7 @@ RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 
 # maybe
 RUN pip3 install --upgrade pip setuptools wheel
-RUN pip3 install cmake
+RUN pip3 install cmake==3.22.0
 
 RUN pip3 install --no-cache-dir numpy>=1.20.0
 RUN pip3 install --no-cache-dir opencv-python~=4.5.3.56
