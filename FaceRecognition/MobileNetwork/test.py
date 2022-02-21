@@ -1,7 +1,7 @@
 import cv2
 
 # open camera
-cap = cv2.VideoCapture('/dev/vchiq', cv2.CAP_V4L)
+cap = cv2.VideoCapture(0)
 
 # set dimensions
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
