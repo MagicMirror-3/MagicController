@@ -23,9 +23,9 @@ ENV READTHEDOCS True
 
 RUN pip3 install --no-cache-dir picamera
 
-COPY ./FaceRecognition/MobileNetwork /
+COPY ./FaceRecognition /
 
-CMD ["python3", "FaceAuthentication.py"]
+CMD ["python3", "/FaceRecognition/MobileNetwork/FaceAuthentication.py"]
 
 # get camera working
 # get
