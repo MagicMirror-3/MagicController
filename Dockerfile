@@ -1,4 +1,4 @@
-FROM 1646552/bullseye_opencv_tflite
+FROM 1646552/bullseye_opencv_tflite:0.1
 
 ENV READTHEDOCS True
 
