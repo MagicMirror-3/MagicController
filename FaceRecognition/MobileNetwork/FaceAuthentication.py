@@ -225,8 +225,8 @@ class FaceAuthentication:
 
                 if not IS_RASPBERRY_PI:
                     cv.imshow('Video', frame)
-                if cv.waitKey(20) & 0xFF == ord('d'):
-                    break
+                    if cv.waitKey(20) & 0xFF == ord('d'):
+                        break
 
         capture.stop()
         if not IS_RASPBERRY_PI:
