@@ -140,6 +140,7 @@ class FaceAuthentication:
 
             # calculate embedding
             unknown_embedding = self.net.calculate_embedding(normalized_face)
+            print("embedding", unknown_embedding)
 
             distances = []
             for name, encoding in self.users:
