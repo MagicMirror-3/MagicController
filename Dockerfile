@@ -18,7 +18,7 @@ RUN pip3 install --no-cache-dir opencv-python~=4.5.3.56
 
 ENV READTHEDOCS True
 
-RUN pip install --no-cache-dir picamera
+RUN pip install --no-cache-dir "picamera[array]"
 
 COPY ./FaceRecognition /
 

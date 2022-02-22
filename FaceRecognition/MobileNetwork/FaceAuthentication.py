@@ -198,34 +198,37 @@ class FaceAuthentication:
         while self.active:
 
             frame = capture.read()
+            if frame.size == 0:
+                print("Frame is empty")
+            else:
 
-            start = time.time()
-            match, distance, face_location = self.match_face(frame)
-            end = time.time()
-            if match is not None and distance is not None:
-                print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
+                start = time.time()
+                match, distance, face_location = self.match_face(frame)
+                end = time.time()
+                if match is not None and distance is not None:
+                    print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
 
-            # print(1000 * 10 ** 6 / (end - start), "fps")
+                # print(1000 * 10 ** 6 / (end - start), "fps")
 
-            # OpenCV returns bounding box coordinates in (x, y, w, h) order
-            # but we need them in (top, right, bottom, left) order, so we
-            # need to do a bit of reordering
-            if face_location is not None:
-                face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
+                # OpenCV returns bounding box coordinates in (x, y, w, h) order
+                # but we need them in (top, right, bottom, left) order, so we
+                # need to do a bit of reordering
+                if face_location is not None:
+                    face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
 
-                # draw rectangles for faces
-                for f1, f2, f3, f4 in face_location:
-                    frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
+                    # draw rectangles for faces
+                    for f1, f2, f3, f4 in face_location:
+                        frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
 
-            # extract faces from image
-            # for (y1, x2, y2, x1) in face_locations:
-            # face = frame[y1:y2, x1:x2]
-            # cv.imshow("face", face)
-            # ---------------------------
+                # extract faces from image
+                # for (y1, x2, y2, x1) in face_locations:
+                # face = frame[y1:y2, x1:x2]
+                # cv.imshow("face", face)
+                # ---------------------------
 
-            cv.imshow('Video', frame)
-            if cv.waitKey(20) & 0xFF == ord('d'):
-                break
+                cv.imshow('Video', frame)
+                if cv.waitKey(20) & 0xFF == ord('d'):
+                    break
 
         capture.stop()
         cv.destroyAllWindows()
