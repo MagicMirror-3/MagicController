@@ -95,6 +95,8 @@ class FaceAuthentication:
         :return:
         """
 
+        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+
         # extract locations of the faces, should be exactly one
         face_locations = self.extract_faces_hog(image)
         if len(face_locations) == 1:
@@ -125,6 +127,8 @@ class FaceAuthentication:
         :param tolerance:
         :return:
         """
+
+        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
         face_location = self.detect_biggest_face(image)
 
