@@ -87,6 +87,7 @@ def main():
 
     # init FaceNet
     net = MobileFaceNetStandard()
+    net.load_model("model/MobileFaceNet.pb")
     niklas1 = net.calculate_embedding(niklas1)
     niklas2 = net.calculate_embedding(niklas2)
     craig1 = net.calculate_embedding(craig1)
