@@ -191,16 +191,16 @@ class FaceAuthentication:
         print(platform.machine())
         if platform.machine() == "armv7l":
             print("Use picamera")
-            capture = VideoStream(usePiCamera=True).start()
+            capture = VideoStream(usePiCamera=True, resolution=(1000, 800)).start()
         else:
             print("Do not use picamera")
-            capture = VideoStream(src=0).start()
+            capture = VideoStream(src=0, resolution=(1000, 800)).start()
 
         # main loop
         while self.active:
 
             frame = capture.read()
-            if frame.size == 0:
+            if frame is None:
                 print("Frame is empty")
             else:
 
