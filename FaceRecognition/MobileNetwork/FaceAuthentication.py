@@ -203,10 +203,7 @@ class FaceAuthentication:
         while self.active:
 
             frame = capture.read()
-            if frame is None:
-                print("Frame is empty")
-            else:
-
+            if frame is not None:
                 start = time.time()
                 match, distance, face_location = self.match_face(frame)
                 end = time.time()
