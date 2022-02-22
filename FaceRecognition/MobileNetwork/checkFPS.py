@@ -15,8 +15,8 @@ path_craig = os.path.join(dirname, "images/craig1.jpg")
 niklas = cv.imread(path_niklas)
 craig = cv.imread(path_craig)
 
-auth.register_face("Niklas", cv.imread(niklas))
-auth.register_face("Craig", cv.imread(craig))
+auth.register_face("Niklas", niklas)
+auth.register_face("Craig", craig)
 
 distances = []
 for _ in range(30):
