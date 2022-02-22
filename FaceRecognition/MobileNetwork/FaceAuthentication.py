@@ -190,8 +190,10 @@ class FaceAuthentication:
         """
         print(platform.machine())
         if platform.machine() == "armv7l":
+            print("Use picamera")
             capture = VideoStream(usePiCamera=True).start()
         else:
+            print("Do not use picamera")
             capture = VideoStream(src=0).start()
 
         # main loop
