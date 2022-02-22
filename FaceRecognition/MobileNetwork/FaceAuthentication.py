@@ -12,6 +12,8 @@ import numpy as np
 
 from MobileFaceNetLite import MobileFaceNetLite
 
+IS_RASPBERRY_PI = platform.machine() == "armv7l"
+
 
 class FaceAuthentication:
     """
@@ -188,13 +190,14 @@ class FaceAuthentication:
 
         :return:
         """
-        print(platform.machine())
-        if platform.machine() == "armv7l":
+
+        if IS_RASPBERRY_PI:
             print("Use picamera")
             capture = VideoStream(usePiCamera=True, resolution=(1000, 800)).start()
         else:
-            print("Do not use picamera")
+            print("Use USB Webcam")
             capture = VideoStream(src=0, resolution=(1000, 800)).start()
+            # todo: failsave
 
         # main loop
         while self.active:
@@ -210,8 +213,6 @@ class FaceAuthentication:
                 if match is not None and distance is not None:
                     print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
 
-                # print(1000 * 10 ** 6 / (end - start), "fps")
-
                 # OpenCV returns bounding box coordinates in (x, y, w, h) order
                 # but we need them in (top, right, bottom, left) order, so we
                 # need to do a bit of reordering
@@ -222,18 +223,14 @@ class FaceAuthentication:
                     for f1, f2, f3, f4 in face_location:
                         frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
 
-                # extract faces from image
-                # for (y1, x2, y2, x1) in face_locations:
-                # face = frame[y1:y2, x1:x2]
-                # cv.imshow("face", face)
-                # ---------------------------
-
-                cv.imshow('Video', frame)
+                if not IS_RASPBERRY_PI:
+                    cv.imshow('Video', frame)
                 if cv.waitKey(20) & 0xFF == ord('d'):
                     break
 
         capture.stop()
-        cv.destroyAllWindows()
+        if not IS_RASPBERRY_PI:
+            cv.destroyAllWindows()
 
 
 def localize_faces(image, detector, sample=1):
