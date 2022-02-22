@@ -44,12 +44,12 @@ check number of faces (haar), take up to X images
 
 """
 
-
 import os
 import pickle
 import random
 
 import cv2 as cv
+import dlib
 
 from FaceAuthentication import FaceAuthentication
 from sklearn.metrics import classification_report
@@ -57,6 +57,7 @@ from sklearn.metrics import classification_report
 
 def create_dataset():
     haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    detector = dlib.get_frontal_face_detector()
     dataset = dict()
 
     training_images_path = os.path.join(os.getcwd(), "benchmark_images")
@@ -72,21 +73,17 @@ def create_dataset():
                 image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
                 # extract faces
-                face_locations = haar_cascade.detectMultiScale(
+                face_locations_haar = haar_cascade.detectMultiScale(
                     image,
                     scaleFactor=1.2,
                     minNeighbors=5,
-                    minSize=(60, 60)
-                )  # draw rectangles for faces
+                    minSize=(50, 50)
+                )
 
-                face_locations = [(y, x + w, y + h, x) for (x, y, w, h) in face_locations]
-                for f1, f2, f3, f4 in face_locations:
-                    image = cv.rectangle(image, (f2, f1), (f4, f3), (255, 0, 0), 3)
-                cv.imshow("Face", image)
-                cv.waitKey(1)
+                face_locations_hog = detector(image, 1)
 
-                if len(face_locations) != 1:
-                    print(f"Error! Detected {len(face_locations)} faces")
+                if len(face_locations_haar) != 1 or len(face_locations_hog) != 1:
+                    print(f"Error! Detected 0 or more than one faces")
                     continue
 
                 if not person_name in dataset:
@@ -102,65 +99,85 @@ def main():
 
     if load_from_file:
         with open(r"dataset.p", "rb") as file:
-            dataset = pickle.load(file)
+            master_dataset = pickle.load(file)
     else:
-        dataset = create_dataset()
+        master_dataset = create_dataset()
         with open(r"dataset.p", "wb") as file:
-            pickle.dump(dataset, file)
+            pickle.dump(master_dataset, file)
 
-    print("Number of people: ", len(dataset))
+    for key, values in master_dataset.items():
+        print(key, " : ", len(master_dataset[key]))
+
+    print("Number of people: ", len(master_dataset))
     print("\n")
 
     # ---------------------------------------------
 
-    iterations = 1
-    n_training_images = 1
-    n_testing_images = 20
+    iterations = 19
+    max_training_images = 5
+    n_testing_images = 19
 
     # ---------------------------------------------
 
-    # reduce list size
-    for key, values in dataset.items():
-        dataset[key] = values[:n_testing_images + n_training_images]
-        print(dataset[key])
+    labels = list(master_dataset.keys())
 
-    test = []
-    pred = []
-    labels = list(dataset.keys())
+    results = []
 
-    # number of repeating the benchmark
-    for i in range(iterations):
+    auth = FaceAuthentication(benchmark_mode=True)
 
-        # shuffle all images for each iteration
-        for name, images in dataset.items():
-            random.shuffle(dataset[name])
+    # ---------------------
+    for n_training_images in range(1, max_training_images + 1):
+        print(f" @@@@@@@@@@@@@@ {n_training_images} training images @@@@@@@@@@@@@@ ")
+        big_result = []
 
-        auth = FaceAuthentication(benchmark_mode=True)
+        # reduce list size
+        dataset = dict()
+        for key, values in master_dataset.items():
+            dataset[key] = values[:n_testing_images + n_training_images]
 
-        # train face recognition system with first n images
-        for name, images in dataset.items():
-            # pick first "n_training_images" for training
-            train_images = images[:n_training_images]
+        # number of repeating the benchmark
+        for i in range(iterations):
 
-            for train_image in train_images:
-                auth.register_face(name, train_image)
+            print(f"################## Iteration: {i} ####################")
 
-            # remove training images from dataset
-            dataset[name] = images[n_training_images:]
+            test = []
+            pred = []
 
-        # test face recognition system against whole dataset
-        for name, images in dataset.items():
-            for image in images:
-                (match, dist), _ = auth.detectAndRecognize(image, tolerance=10)
-                print("Actual: ", name, " Predicted: ", match, " ", dist)
+            auth.delete_all_users()
 
-                # todo: either add unknown, how to handle none?
-                if match is not None:
-                    test.append(name)
-                    pred.append(match)
+            # shuffle all images for each iteration
+            for name, images in dataset.items():
+                random.shuffle(dataset[name])
 
-    print("\n")
-    print(classification_report(test, pred, target_names=labels, digits=4, output_dict=True))
+            # train face recognition system with first n images
+            for name, images in dataset.items():
+                # pick first "n_training_images" for training
+                train_images = images[:n_training_images]
+
+                for train_image in train_images:
+                    try:
+                        auth.register_face(name, train_image)
+                    except:
+                        pass
+
+                # remove training images from dataset
+                dataset[name] = images[n_training_images:]
+
+            # test face recognition system against whole dataset
+            for name, images in dataset.items():
+                for image in images:
+                    match, distance, face_location = auth.match_face(image, tolerance=10)
+                    print("Actual: ", name, " Predicted: ", match, " ", distance)
+
+                    # todo: either add unknown, how to handle none?
+                    if match is not None:
+                        test.append(name)
+                        pred.append(match)
+
+            big_result.append(
+                classification_report(test, pred, digits=4, output_dict=True)['macro avg'])
+        results.append(big_result)
+    print(results)
 
 
 if __name__ == "__main__":

@@ -57,32 +57,20 @@ while True:
             face_chip = dlib.get_face_chip(image, landmarks)
 
             # face_chip = cv2.cvtColor(face_chip, cv2.COLOR_BGR2GRAY)
-            cv2.imshow("Normal", face_chip)
+            cv2.imshow("Face " + str(i), face_chip)
 
             # calculate embedding
-            #start = time.time_ns()
-            #face_descriptor_from_prealigned_image = facerec.compute_face_descriptor(face_chip)
-            #end = time.time_ns()
-            #print((end - start) / 10 ** 6, "ms")
-
-
-            neutralized = log_transform(face_chip)
-            cv2.imshow("Log", neutralized)
-
-            hist = hist_equalization(face_chip)
-            cv2.imshow("Hist", hist)
-
-            clahe = CLAHE(face_chip, clipLimit=3.0, tileGridSize=(5, 5))
-            cv2.imshow("clahe", clahe)
-            
-
+            # start = time.time_ns()
+            # face_descriptor_from_prealigned_image = facerec.compute_face_descriptor(face_chip)
+            # end = time.time_ns()
+            # print((end - start) / 10 ** 6, "ms")
 
             # draw landmarks
             landmarks = face_utils.shape_to_np(landmarks)  # convert to np array
             for (x, y) in landmarks:
                 cv2.circle(image, (x, y), 1, (0, 0, 255), 2)
 
-        cv2.imshow('Live feed', image)
+        cv2.imshow("video", image)
 
     if cv2.waitKey(1) == 27:
         break
