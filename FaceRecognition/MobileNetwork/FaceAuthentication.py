@@ -193,10 +193,10 @@ class FaceAuthentication:
 
         if IS_RASPBERRY_PI:
             print("Use picamera")
-            capture = VideoStream(usePiCamera=True, resolution=(1000, 800)).start()
+            capture = VideoStream(usePiCamera=True, resolution=(1600, 900)).start()
         else:
             print("Use USB Webcam")
-            capture = VideoStream(src=0, resolution=(1000, 800)).start()
+            capture = VideoStream(src=0, resolution=(1600, 900)).start()
             # todo: failsave
 
         # main loop
@@ -250,10 +250,10 @@ def main():
     dirname = os.path.dirname(__file__)
 
     path_niklas = os.path.join(dirname, "images/niklas1.jpg")
-    path_craig = os.path.join(dirname, "images/craig1.jpg")
+    #path_craig = os.path.join(dirname, "images/craig1.jpg")
 
     auth.register_face("Niklas", cv.imread(path_niklas))
-    auth.register_face("Craig", cv.imread(path_craig))
+    #auth.register_face("Craig", cv.imread(path_craig))
 
     auth.live_recognition()
 
