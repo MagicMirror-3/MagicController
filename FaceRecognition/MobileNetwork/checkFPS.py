@@ -12,7 +12,9 @@ print("path niklas", path_niklas)
 print("path craig", path_craig)
 
 niklas = cv.imread(path_niklas)
+print("image niklas", niklas)
 craig = cv.imread(path_craig)
+print("image craig", craig)
 
 print("equal", niklas == craig)
 
