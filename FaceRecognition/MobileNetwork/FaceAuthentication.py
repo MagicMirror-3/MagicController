@@ -140,7 +140,6 @@ class FaceAuthentication:
 
             # calculate embedding
             unknown_embedding = self.net.calculate_embedding(normalized_face)
-            print("embedding", unknown_embedding)
 
             distances = []
             for name, encoding in self.users:
@@ -210,7 +209,7 @@ class FaceAuthentication:
             frame = capture.read()
             if frame is not None:
                 start = time.time()
-                match, distance, face_location = self.match_face(frame)
+                match, distance, face_location = self.match_face(frame, tolerance=0.7)
                 end = time.time()
                 if match is not None and distance is not None:
                     print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
@@ -255,10 +254,10 @@ def main():
     dirname = os.path.dirname(__file__)
 
     path_niklas = os.path.join(dirname, "images/niklas1.jpg")
-    #path_craig = os.path.join(dirname, "images/craig1.jpg")
+    path_craig = os.path.join(dirname, "images/craig1.jpg")
 
     auth.register_face("Niklas", cv.imread(path_niklas))
-    #auth.register_face("Craig", cv.imread(path_craig))
+    auth.register_face("Craig", cv.imread(path_craig))
 
     auth.live_recognition()
 
