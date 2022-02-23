@@ -23,7 +23,7 @@ class FaceAuthentication:
 
     """
 
-    def __init__(self, benchmark_mode=False):
+    def __init__(self, benchmark_mode=False, lite=False):
         # load face embeddings from file, if file exists and benchmark mode is turned off
 
         self.benchmark_mode = benchmark_mode
@@ -41,15 +41,20 @@ class FaceAuthentication:
 
         dirname = os.path.dirname(__file__)
         path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
-        path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
+
+        if lite:
+            self.net = MobileFaceNetLite()
+            path_mobile_face_net = os.path.join(dirname, "model/old/MobileFaceNet.tflite")
+            self.net.load_model(path_mobile_face_net)
+        else:
+            self.net = MobileFaceNetStandard()
+            path_standard_face_net = os.path.join(dirname, "model/MobileFaceNet.pb")
+            self.net.load_model(path_standard_face_net)
 
         self.active = True
         self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
-        self.net = MobileFaceNetLite()
-        self.net.load_model(path_mobile_face_net)
-        self.timer = None
 
     def detect_biggest_face(self, image):
         """
@@ -139,6 +144,10 @@ class FaceAuthentication:
             distances = []
             for name, encoding in self.users:
                 distances.append(self.distance_euclid(unknown_embedding, encoding))
+
+            # todo: Debugging
+            print([name for name, encoding in self.users])
+            print(distances)
 
             if min(distances) <= tolerance:
                 return self.users[distances.index(min(distances))][0], min(distances), [(x, y, w, h)]
