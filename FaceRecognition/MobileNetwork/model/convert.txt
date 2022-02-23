@@ -12,5 +12,17 @@ tflite_convert
 
   tflite_convert --graph_def_file=MobileFaceNet.pb --enable_v1_converter --output_format=TFLITE --output_file=MobileFaceNet.tflite --inference_type=QUANTIZED_UINT8 --input_arrays=input --output_arrays=embeddings --input_shapes=1,112,112,3 --mean_values=128 --std_dev_values=127 --default_ranges_min=0 --default_ranges_max=255
 
-  # Working !!!
-  tflite_convert --graph_def_file=MobileFaceNet.pb --enable_v1_converter --output_format=TFLITE --output_file=MobileFaceNet.tflite --input_arrays=input --output_arrays=embeddings --input_shapes=1,112,112,3
+  tflite_convert --graph_def_file=MobileFaceNet.pb --input_format=TENSORFLOW_GRAPHDEF --enable_v1_converter --output_format=TFLITE --output_file=MobileFaceNet.tflite --input_arrays=input --output_arrays=embeddings --input_shapes=1,112,112,3
+
+
+MobileFaceNet_iter_14000.tflite
+
+########## Same person ##########
+niklas - niklas 0.48876467
+craig - craig 0.6573658
+####### Different person ########
+niklas1 - craig 1.0817847
+niklas2 - craig 1.0273775
+niklas2 - rock 1.1143924
+craig1 - rock 0.9297142
+craig2 - rock 1.0022198
