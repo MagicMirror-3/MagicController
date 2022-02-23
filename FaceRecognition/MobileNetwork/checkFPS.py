@@ -14,18 +14,21 @@ print("path craig", path_craig)
 niklas = cv.imread(path_niklas)
 craig = cv.imread(path_craig)
 
-auth = FaceAuthentication(benchmark_mode=True)
+auth = FaceAuthentication(benchmark_mode=True, lite=False  )
 print("Started authentication")
 auth.register_face("Craig", craig)
 print("Registered Craig")
 auth.register_face("Niklas", niklas)
 print("Registered Niklas")
 
-fps_list = []
-for i in range(5):
+actual_face = craig
 
+fps_list = []
+
+for i in range(5):
+    print("------------------------------------------")
     start = time.time()
-    match, distance, face_location = auth.match_face(craig)
+    match, distance, face_location = auth.match_face(actual_face)
     end = time.time()
     if match is not None and distance is not None:
         fps = 1 / (end - start)
