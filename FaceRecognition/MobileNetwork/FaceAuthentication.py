@@ -44,7 +44,7 @@ class FaceAuthentication:
 
         if lite:
             self.net = MobileFaceNetLite()
-            path_mobile_face_net = os.path.join(dirname, "model/old/MobileFaceNet.tflite")
+            path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
             self.net.load_model(path_mobile_face_net)
         else:
             self.net = MobileFaceNetStandard()
