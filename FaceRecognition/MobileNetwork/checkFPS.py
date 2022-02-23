@@ -25,9 +25,9 @@ print("Registered Craig")
 auth.register_face("Niklas", niklas)
 print("Registered Niklas")
 
-
+match, distance, face_location = auth.match_face(craig)
 fps_list = []
-for i in range(2):
+for i in range(20):
 
     start = time.time()
     match, distance, face_location = auth.match_face(craig)

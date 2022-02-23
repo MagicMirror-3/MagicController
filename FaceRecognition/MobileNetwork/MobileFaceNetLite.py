@@ -33,7 +33,6 @@ class MobileFaceNetLite(MobileFaceNet):
         face_image = face_image.astype(np.float32)
         face_image = self.preprocess_image(face_image)
 
-        self.interpreter.invoke()
-
         self.interpreter.set_tensor(self.input_details[0]['index'], face_image)
+        self.interpreter.invoke()
         return self.interpreter.get_tensor(self.output_details[0]['index'])
