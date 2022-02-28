@@ -145,3 +145,4 @@ FaceRecognition/LBPH/training_images/
 FaceRecognition/MobileNetwork/benchmark_images
 FaceRecognition/MobileNetwork/dataset.p
 
+!/FaceRecognition/MobileNetwork/user_embedding.p
