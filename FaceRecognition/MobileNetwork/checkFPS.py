@@ -14,18 +14,19 @@ print("path craig", path_craig)
 niklas = cv.imread(path_niklas)
 craig = cv.imread(path_craig)
 
-auth = FaceAuthentication(benchmark_mode=True, lite=False  )
+auth = FaceAuthentication(benchmark_mode=True, lite=True)
 print("Started authentication")
 auth.register_face("Craig", craig)
 print("Registered Craig")
 auth.register_face("Niklas", niklas)
 print("Registered Niklas")
 
-actual_face = craig
+actual_face = niklas
 
 fps_list = []
 
-for i in range(5):
+match, distance, face_location = auth.match_face(actual_face)
+for i in range(40):
     print("------------------------------------------")
     start = time.time()
     match, distance, face_location = auth.match_face(actual_face)
@@ -39,3 +40,9 @@ for i in range(5):
 
 
 print(f"Average FPS: {statistics.mean(fps_list)}")
+
+
+"""
+Normales Model: 23.14 fps
+tflite:         23.69 fps
+"""
