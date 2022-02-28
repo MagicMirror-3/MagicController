@@ -145,10 +145,6 @@ class FaceAuthentication:
             for name, encoding in self.users:
                 distances.append(self.distance_euclid(unknown_embedding, encoding))
 
-            # todo: Debugging
-            print([name for name, encoding in self.users])
-            print(distances)
-
             if min(distances) <= tolerance:
                 return self.users[distances.index(min(distances))][0], min(distances), [(x, y, w, h)]
             else:
