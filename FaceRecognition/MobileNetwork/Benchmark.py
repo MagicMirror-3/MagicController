@@ -42,6 +42,12 @@ dataset structure:
 creation:
 check number of faces (haar), take up to X images
 
+---------------------------------------
+
+Important: Check performance of images taken with pi camera vs with webcam/ smartphone camera
+
+Check knn vs k means vs basic approach vs median
+
 """
 
 import os
@@ -52,7 +58,7 @@ import cv2 as cv
 import dlib
 
 from FaceAuthentication import FaceAuthentication
-from sklearn.metrics import classification_report
+import pandas as pd
 
 
 def create_dataset():
@@ -113,71 +119,71 @@ def main():
 
     # ---------------------------------------------
 
-    iterations = 19
+    iterations = 15
     max_training_images = 5
-    n_testing_images = 19
+
+    """
+    results = [
+        [
+            [
+                [
+                    all tests of one iteration (as tuple)
+                ]
+            ] --> iterations
+        ] --> n-training_images(1-5)
+    ]
+    """
+
+    df = pd.DataFrame(columns=["n_training_images", "true_name", "predicted_name", "smallest_distance"])
 
     # ---------------------------------------------
 
-    labels = list(master_dataset.keys())
-
-    results = []
-
-    auth = FaceAuthentication(benchmark_mode=True)
+    auth = FaceAuthentication(benchmark_mode=True, lite=True)
 
     # ---------------------
-    for n_training_images in range(1, max_training_images + 1):
-        print(f" @@@@@@@@@@@@@@ {n_training_images} training images @@@@@@@@@@@@@@ ")
-        big_result = []
+    for n_training_images in range(max_training_images):
+        print(f" @@@@@@@@@@@@@@ {n_training_images + 1} training images @@@@@@@@@@@@@@ ")
 
-        # reduce list size
-        dataset = dict()
-        for key, values in master_dataset.items():
-            dataset[key] = values[:n_testing_images + n_training_images]
-
-        # number of repeating the benchmark
         for i in range(iterations):
-
-            print(f"################## Iteration: {i} ####################")
-
-            test = []
-            pred = []
+            print(f" @@@@@@@@@@@@@@ Iteration {i + 1} @@@@@@@@@@@@@@ ")
+            # training images
+            training_images = dict()
+            for key, values in master_dataset.items():
+                training_images[key] = values[i:i + n_training_images + 1]
+            # testing images
+            testing_images = dict()
+            for key, values in master_dataset.items():
+                testing_images[key] = values[:i] + values[i + n_training_images+1:iterations + n_training_images+1]
 
             auth.delete_all_users()
 
-            # shuffle all images for each iteration
-            for name, images in dataset.items():
-                random.shuffle(dataset[name])
-
-            # train face recognition system with first n images
-            for name, images in dataset.items():
-                # pick first "n_training_images" for training
-                train_images = images[:n_training_images]
-
-                for train_image in train_images:
+            # train with all images from training dataset
+            for name, images in training_images.items():
+                for image in images:
                     try:
-                        auth.register_face(name, train_image)
+                        auth.register_face(name, image)
                     except:
-                        pass
+                        print(f"Failed to register {name}")
 
-                # remove training images from dataset
-                dataset[name] = images[n_training_images:]
-
-            # test face recognition system against whole dataset
-            for name, images in dataset.items():
+            # test the classifier
+            print(f'{"Actual" :<30} {"Predicted" :<30} {"Distance" :<10} {"Correct" :<5}')
+            for name, images in testing_images.items():
                 for image in images:
                     match, distance, face_location = auth.match_face(image, tolerance=10)
-                    print("Actual: ", name, " Predicted: ", match, " ", distance)
 
-                    # todo: either add unknown, how to handle none?
-                    if match is not None:
-                        test.append(name)
-                        pred.append(match)
+                    if match is None or distance is None:
+                        print(f'{name :<30} {"--" :<30} {"--":<10} {"--" :<5}')
+                    else:
+                        print(
+                            f'{name :<30} {match :<30} {"{0:.4f}".format(distance) :<10} {"yes" if name == match else "no" :<5}')
 
-            big_result.append(
-                classification_report(test, pred, digits=4, output_dict=True)['macro avg'])
-        results.append(big_result)
-    print(results)
+                    # append row to dataframe
+                    row = [n_training_images, name, match, distance]
+                    df.loc[len(df)] = row
+
+        print(df)
+
+    df.to_csv("results.csv", index=False)
 
 
 if __name__ == "__main__":
