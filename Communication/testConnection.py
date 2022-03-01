@@ -1,12 +1,11 @@
 """
 Start connection with smartphone and send a hello message
 """
-import time
 
 import dbus
 
-from ble_gatt_server.advertisement import Advertisement
-from ble_gatt_server.service import Application, Service, Characteristic, Descriptor
+from Communication.advertisement import Advertisement
+from Communication.service import Application, Service, Characteristic, Descriptor
 
 GATT_CHRC_IFACE = "org.bluez.GattCharacteristic1"
 NOTIFY_TIMEOUT = 5000
