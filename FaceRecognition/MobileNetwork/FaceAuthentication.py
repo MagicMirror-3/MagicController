@@ -120,7 +120,7 @@ class FaceAuthentication:
 
         print(f"Registered new face for {name}")
 
-    def match_face(self, image, tolerance=0.6):
+    def match_face(self, image, tolerance=0.8):
         """
 
         :param image:
@@ -163,7 +163,7 @@ class FaceAuthentication:
 
         return np.linalg.norm(vector_1 - vector_2)
 
-    def normalize_face(self, image, location, size=112, padding=0.3):
+    def normalize_face(self, image, location, size=112, padding=0.25):
         """
 
         :param padding:
