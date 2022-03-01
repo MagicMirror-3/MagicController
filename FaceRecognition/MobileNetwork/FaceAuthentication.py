@@ -249,7 +249,7 @@ def localize_faces(image, detector, sample=1):
 
 def main():
     # register faces
-    auth = FaceAuthentication()
+    auth = FaceAuthentication(benchmark_mode=True)
 
     dirname = os.path.dirname(__file__)
 
