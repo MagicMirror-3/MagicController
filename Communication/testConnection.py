@@ -4,8 +4,8 @@ Start connection with smartphone and send a hello message
 
 import dbus
 
-from Communication.advertisement import Advertisement
-from Communication.service import Application, Service, Characteristic, Descriptor
+from advertisement import Advertisement
+from service import Application, Service, Characteristic, Descriptor
 
 GATT_CHRC_IFACE = "org.bluez.GattCharacteristic1"
 NOTIFY_TIMEOUT = 5000
