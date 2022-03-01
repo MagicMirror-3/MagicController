@@ -197,10 +197,10 @@ class FaceAuthentication:
 
         if IS_RASPBERRY_PI:
             print("Use picamera")
-            capture = VideoStream(usePiCamera=True, resolution=(1600, 900)).start()
+            capture = VideoStream(usePiCamera=True, resolution=(640, 480)).start()
         else:
             print("Use USB Webcam")
-            capture = VideoStream(src=0, resolution=(1600, 900)).start()
+            capture = VideoStream(src=0, resolution=(640, 480)).start()
             # todo: failsave
 
         # main loop
