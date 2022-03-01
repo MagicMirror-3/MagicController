@@ -31,7 +31,7 @@ NOTIFY_TIMEOUT = 5000
 class ThermometerAdvertisement(Advertisement):
     def __init__(self, index):
         Advertisement.__init__(self, index, "peripheral")
-        self.add_local_name("Thermometer")
+        self.add_local_name("MagicMirror")
         self.include_tx_power = True
 
 
