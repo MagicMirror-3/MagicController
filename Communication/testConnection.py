@@ -1,6 +1,7 @@
 """
 Start connection with smartphone and send a hello message
 """
+import time
 
 import dbus
 
@@ -9,10 +10,6 @@ from service import Application, Service, Characteristic, Descriptor
 
 GATT_CHRC_IFACE = "org.bluez.GattCharacteristic1"
 NOTIFY_TIMEOUT = 5000
-
-
-class BleApplication(Application):
-    pass
 
 
 class MagicMirrorAdvertisement(Advertisement):
@@ -45,7 +42,7 @@ class HelloCharacteristic(Characteristic):
     def get_hello(self):
         value = []
 
-        data = 'Hello there '#  + str(time.time())
+        data = 'Hello there '  # + str(time.time())
         # data = 'D=%s,W=%s,C=%s' % (degrees, weather_id, city_id)
         print('Sending: ', data, flush=True)
 
@@ -101,6 +98,7 @@ class HelloDescriptor(Descriptor):
             value.append(dbus.Byte(c.encode()))
 
         return value
+
 
 """
 class ResumeWeatherCharacteristic(Characteristic):
@@ -336,5 +334,11 @@ adv.register()
 
 try:
     app.run()
+
+    while True:
+        # update "hello"
+        time.sleep(1)
+        app.services[1].he
+
 except KeyboardInterrupt:
     app.quit()
