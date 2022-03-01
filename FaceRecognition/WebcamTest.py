@@ -26,7 +26,7 @@ DLIB = False
 Haar = True
 
 # Recognition
-DLIB_REC = True
+DLIB_REC = False
 
 capture = cv.VideoCapture(0)
 encoding_old = []
