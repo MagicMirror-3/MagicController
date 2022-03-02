@@ -7,7 +7,7 @@ import statistics
 
 dirname = os.path.dirname(__file__)
 
-path_niklas = os.path.join(dirname, "images/niklas1.jpg")
+path_niklas = os.path.join(dirname, "images/niklas2.jpg")
 path_craig = os.path.join(dirname, "images/craig1.jpg")
 print("path niklas", path_niklas)
 print("path craig", path_craig)
