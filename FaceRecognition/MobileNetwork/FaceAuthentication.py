@@ -70,7 +70,7 @@ class FaceAuthentication:
         # extract faces with haar classifier
         face_locations = self.haar_cascade.detectMultiScale(
             image_gray,
-            scaleFactor=1.2,
+            scaleFactor=1.1,
             minNeighbors=5,
             minSize=(50, 50)
         )
@@ -122,7 +122,7 @@ class FaceAuthentication:
 
         print(f"Registered new face for {name}")
 
-    def match_face(self, image, tolerance=0.6):
+    def match_face(self, image, tolerance=0.65):
         """
 
         :param image:
@@ -198,7 +198,7 @@ class FaceAuthentication:
         if platform.machine() == "armv7l":
             capture = VideoStream(usePiCamera=True).start()
         else:
-            capture = VideoStream(src=0).start()
+            capture = VideoStream(src=0, resolution=(1600,900)).start()
 
         # main loop
         while self.active:
