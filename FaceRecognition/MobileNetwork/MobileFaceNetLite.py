@@ -5,9 +5,16 @@ import dlib
 import numpy as np
 import cv2 as cv
 
-from MobileFaceNet import MobileFaceNet
+from MobileFaceNet import MobileFaceNet, import_tensorflow
 
-from tflite_runtime.interpreter import Interpreter
+
+# import tensorflow conbditionally, use Interpreter from tflite_runtime if one is on the raspberry pi
+IS_RASPBERRY_PI = platform.machine() == "armv7l"
+if IS_RASPBERRY_PI:
+    from tflite_runtime.interpreter import Interpreter
+else:
+    tf = import_tensorflow()
+    Interpreter = tf.lite.Interpreter
 
 
 class MobileFaceNetLite(MobileFaceNet):

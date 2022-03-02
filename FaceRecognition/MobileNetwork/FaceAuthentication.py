@@ -5,12 +5,12 @@ import time
 import cv2 as cv
 import dlib
 from imutils.video import VideoStream
-from threading import Timer
 import os
 
 import numpy as np
 
 from MobileFaceNetLite import MobileFaceNetLite
+from MobileFaceNetStandard import MobileFaceNetStandard
 
 IS_RASPBERRY_PI = platform.machine() == "armv7l"
 
@@ -19,8 +19,6 @@ class FaceAuthentication:
     """
 
     Optimization:
-
-    https://learnopencv.com/speeding-up-dlib-facial-landmark-detector/
 
     """
 
@@ -42,8 +40,8 @@ class FaceAuthentication:
 
         dirname = os.path.dirname(__file__)
         path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
-        
-        if lite:
+
+        if IS_RASPBERRY_PI or lite:
             self.net = MobileFaceNetLite()
             path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
             self.net.load_model(path_mobile_face_net)
@@ -56,7 +54,6 @@ class FaceAuthentication:
         self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
-        
 
     def detect_biggest_face(self, image):
         """
@@ -209,7 +206,7 @@ class FaceAuthentication:
             print("Use USB Webcam")
             capture = VideoStream(src=0, resolution=resolution).start()
             # todo: failsave
-            
+
         # main loop
         while self.active:
 

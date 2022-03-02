@@ -3,3 +3,4 @@ cmake
 dlib
 numpy
 imutils
+tensorflow
