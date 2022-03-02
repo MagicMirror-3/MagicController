@@ -70,8 +70,13 @@ class FaceAuthentication:
         # extract faces with haar classifier
         face_locations = self.haar_cascade.detectMultiScale(
             image_gray,
+<<<<<<< Updated upstream
             scaleFactor=1.1,
             minNeighbors=5,
+=======
+            scaleFactor=1.2,
+            minNeighbors=6,
+>>>>>>> Stashed changes
             minSize=(50, 50)
         )
 
@@ -198,7 +203,12 @@ class FaceAuthentication:
         if platform.machine() == "armv7l":
             capture = VideoStream(usePiCamera=True).start()
         else:
+<<<<<<< Updated upstream
             capture = VideoStream(src=0, resolution=(1600,900)).start()
+=======
+            # resolution=(1600, 900)
+            capture = VideoStream(src=0).start()
+>>>>>>> Stashed changes
 
         # main loop
         while self.active:
@@ -256,10 +266,16 @@ def main():
 
     dirname = os.path.dirname(__file__)
 
-    path_niklas = os.path.join(dirname, "images/niklas1.jpg")
+    path_niklas1 = os.path.join(dirname, "images/niklas1.jpg")
+    path_niklas2 = os.path.join(dirname, "images/niklas2.jpg")
+    path_niklas3 = os.path.join(dirname, "images/niklas3.jpg")
+    path_niklas4 = os.path.join(dirname, "images/niklas4.jpg")
     path_craig = os.path.join(dirname, "images/craig1.jpg")
 
-    auth.register_face("Niklas", cv.imread(path_niklas))
+    auth.register_face("Niklas", cv.imread(path_niklas1))
+    auth.register_face("Niklas", cv.imread(path_niklas2))
+    auth.register_face("Niklas", cv.imread(path_niklas3))
+    auth.register_face("Niklas", cv.imread(path_niklas4))
     auth.register_face("Craig", cv.imread(path_craig))
 
     auth.live_recognition()
