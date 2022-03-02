@@ -5,12 +5,9 @@ import dlib
 import numpy as np
 import cv2 as cv
 
-from MobileFaceNet import MobileFaceNet, import_tensorflow
+from MobileFaceNet import MobileFaceNet
 
-if platform.machine() == "armv7l":
-    from tflite_runtime.interpreter import Interpreter
-else:
-    Interpreter = import_tensorflow().lite.Interpreter
+from tflite_runtime.interpreter import Interpreter
 
 
 class MobileFaceNetLite(MobileFaceNet):
@@ -24,7 +21,7 @@ class MobileFaceNetLite(MobileFaceNet):
         model_exp = os.path.expanduser(model_path)
         if os.path.isfile(model_exp):
             # Load the TFLite model and allocate tensors.
-            self.interpreter = Interpreter(model_path=model_path)
+            self.interpreter = Interpreter(model_path=model_path, num_threads=4)
             self.interpreter.allocate_tensors()
 
             # Get input and output tensors.

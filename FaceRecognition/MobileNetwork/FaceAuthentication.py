@@ -10,8 +10,9 @@ import os
 
 import numpy as np
 
-from MobileFaceNetStandard import MobileFaceNetStandard
 from MobileFaceNetLite import MobileFaceNetLite
+
+IS_RASPBERRY_PI = platform.machine() == "armv7l"
 
 
 class FaceAuthentication:
@@ -41,7 +42,7 @@ class FaceAuthentication:
 
         dirname = os.path.dirname(__file__)
         path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
-
+        
         if lite:
             self.net = MobileFaceNetLite()
             path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
@@ -55,6 +56,7 @@ class FaceAuthentication:
         self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
+        
 
     def detect_biggest_face(self, image):
         """
@@ -99,6 +101,8 @@ class FaceAuthentication:
         :return:
         """
 
+        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+
         # extract locations of the faces, should be exactly one
         face_locations = self.extract_faces_hog(image)
         if len(face_locations) == 1:
@@ -123,12 +127,15 @@ class FaceAuthentication:
         print(f"Registered new face for {name}")
 
     def match_face(self, image, tolerance=0.65):
+
         """
 
         :param image:
         :param tolerance:
         :return:
         """
+
+        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
 
         face_location = self.detect_biggest_face(image)
 
@@ -163,7 +170,7 @@ class FaceAuthentication:
 
         return np.linalg.norm(vector_1 - vector_2)
 
-    def normalize_face(self, image, location, size=112, padding=0.3):
+    def normalize_face(self, image, location, size=112, padding=0.25):
         """
 
         :param padding:
@@ -194,45 +201,45 @@ class FaceAuthentication:
 
         :return:
         """
-        print(platform.machine())
-        if platform.machine() == "armv7l":
+
+        if IS_RASPBERRY_PI:
+            print("Use picamera")
             capture = VideoStream(usePiCamera=True, resolution=resolution).start()
         else:
+            print("Use USB Webcam")
             capture = VideoStream(src=0, resolution=resolution).start()
-
+            # todo: failsave
+            
         # main loop
         while self.active:
 
             frame = capture.read()
 
-            start = time.time()
-            match, distance, face_location = self.match_face(frame)
-            end = time.time()
-            if match is not None and distance is not None:
-                print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
+            if frame is not None:
+                start = time.time()
+                match, distance, face_location = self.match_face(frame, tolerance=0.65)
+                end = time.time()
+                if match is not None and distance is not None:
+                    print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
 
-            # OpenCV returns bounding box coordinates in (x, y, w, h) order
-            # but we need them in (top, right, bottom, left) order, so we
-            # need to do a bit of reordering
-            if face_location is not None:
-                face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
+                # OpenCV returns bounding box coordinates in (x, y, w, h) order
+                # but we need them in (top, right, bottom, left) order, so we
+                # need to do a bit of reordering
+                if face_location is not None:
+                    face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
 
-                # draw rectangles for faces
-                for f1, f2, f3, f4 in face_location:
-                    frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
+                    # draw rectangles for faces
+                    for f1, f2, f3, f4 in face_location:
+                        frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
 
-            # extract faces from image
-            # for (y1, x2, y2, x1) in face_locations:
-            # face = frame[y1:y2, x1:x2]
-            # cv.imshow("face", face)
-            # ---------------------------
-
-            cv.imshow('Video', frame)
-            if cv.waitKey(20) & 0xFF == ord('d'):
-                break
+                if not IS_RASPBERRY_PI:
+                    cv.imshow('Video', frame)
+                    if cv.waitKey(20) & 0xFF == ord('d'):
+                        break
 
         capture.stop()
-        cv.destroyAllWindows()
+        if not IS_RASPBERRY_PI:
+            cv.destroyAllWindows()
 
 
 def localize_faces(image, detector, sample=1):

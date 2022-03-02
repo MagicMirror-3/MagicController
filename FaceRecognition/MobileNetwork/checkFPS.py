@@ -6,7 +6,8 @@ import cv2 as cv
 import statistics
 
 dirname = os.path.dirname(__file__)
-path_niklas = os.path.join(dirname, "images/niklas2.jpg")
+
+path_niklas = os.path.join(dirname, "images/niklas1.jpg")
 path_craig = os.path.join(dirname, "images/craig1.jpg")
 print("path niklas", path_niklas)
 print("path craig", path_craig)
@@ -15,11 +16,9 @@ niklas = cv.imread(path_niklas)
 craig = cv.imread(path_craig)
 
 auth = FaceAuthentication(benchmark_mode=True, lite=True)
-print("Started authentication")
+
 auth.register_face("Craig", craig)
-print("Registered Craig")
 auth.register_face("Niklas", niklas)
-print("Registered Niklas")
 
 actual_face = niklas
 
@@ -38,11 +37,5 @@ for i in range(40):
     else:
         print("No match")
 
-
 print(f"Average FPS: {statistics.mean(fps_list)}")
 
-
-"""
-Normales Model: 23.14 fps
-tflite:         23.69 fps
-"""
