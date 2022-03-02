@@ -70,13 +70,8 @@ class FaceAuthentication:
         # extract faces with haar classifier
         face_locations = self.haar_cascade.detectMultiScale(
             image_gray,
-<<<<<<< Updated upstream
             scaleFactor=1.1,
             minNeighbors=5,
-=======
-            scaleFactor=1.2,
-            minNeighbors=6,
->>>>>>> Stashed changes
             minSize=(50, 50)
         )
 
@@ -194,21 +189,16 @@ class FaceAuthentication:
     def delete_all_users(self):
         self.users = []
 
-    def live_recognition(self):
+    def live_recognition(self, resolution=(640, 480)):
         """
 
         :return:
         """
         print(platform.machine())
         if platform.machine() == "armv7l":
-            capture = VideoStream(usePiCamera=True).start()
+            capture = VideoStream(usePiCamera=True, resolution=resolution).start()
         else:
-<<<<<<< Updated upstream
-            capture = VideoStream(src=0, resolution=(1600,900)).start()
-=======
-            # resolution=(1600, 900)
-            capture = VideoStream(src=0).start()
->>>>>>> Stashed changes
+            capture = VideoStream(src=0, resolution=resolution).start()
 
         # main loop
         while self.active:
@@ -220,8 +210,6 @@ class FaceAuthentication:
             end = time.time()
             if match is not None and distance is not None:
                 print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
-
-            # print(1000 * 10 ** 6 / (end - start), "fps")
 
             # OpenCV returns bounding box coordinates in (x, y, w, h) order
             # but we need them in (top, right, bottom, left) order, so we
