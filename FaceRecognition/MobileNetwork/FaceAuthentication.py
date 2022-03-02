@@ -11,6 +11,7 @@ import numpy as np
 
 from MobileFaceNetLite import MobileFaceNetLite
 from MobileFaceNetStandard import MobileFaceNetStandard
+from MirrorFaceOutput import MirrorFaceOutput
 
 IS_RASPBERRY_PI = platform.machine() == "armv7l"
 
@@ -22,7 +23,7 @@ class FaceAuthentication:
 
     """
 
-    def __init__(self, benchmark_mode=False, lite=False):
+    def __init__(self, benchmark_mode=False, lite=True, resolution=(640, 480)):
         # load face embeddings from file, if file exists and benchmark mode is turned off
 
         self.benchmark_mode = benchmark_mode
@@ -55,15 +56,15 @@ class FaceAuthentication:
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
 
-    def detect_biggest_face(self, image):
-        """
-        Extract the location of the biggest face from an image.
-        If there are multiple faces, choose the nearest (biggest) face.
+        # initiate camera
+        if IS_RASPBERRY_PI:
+            print("Use picamera")
+            self.capture = VideoStream(usePiCamera=True, resolution=resolution).start()
+        else:
+            print("Use USB Webcam")
+            self.capture = VideoStream(src=0, resolution=resolution).start()
 
-        Format: (x, y, w, h)
-
-        """
-
+    def get_face_locations(self, image):
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
         # extract faces with haar classifier
@@ -73,6 +74,19 @@ class FaceAuthentication:
             minNeighbors=5,
             minSize=(50, 50)
         )
+
+        return face_locations
+
+    def detect_biggest_face(self, image):
+        """
+        Extract the location of the biggest face from an image.
+        If there are multiple faces, choose the nearest (biggest) face.
+
+        Format: (x, y, w, h)
+
+        """
+
+        face_locations = self.get_face_locations(image)
 
         if len(face_locations) > 0:
 
@@ -88,40 +102,64 @@ class FaceAuthentication:
         """
 
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        return self.detector(image_gray, 1)
+        return self.detector(image_gray, 0)
 
-    def register_face(self, name, image):
+    def register_faces(self, name, images, min_number_faces):
         """
 
+        Register multiple faces, there must be at least min_number of images, that contain identifiable faces.
+
+        :param images:
+        :param min_number_faces:
         :param name:
-        :param image:
-        :return:
+        :return: True, if registration was successful, False if it was not
         """
 
-        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+        images_rgb = [cv.cvtColor(image, cv.COLOR_BGR2RGB) for image in images]
 
-        # extract locations of the faces, should be exactly one
-        face_locations = self.extract_faces_hog(image)
-        if len(face_locations) == 1:
-            location = face_locations[0]
-            # normalize and extract the face
-            face = self.normalize_face(image, location)
-        elif len(face_locations) == 0:
-            raise Exception("No faces detected!")
+        # select images, where exactly one face is recognized
+        usable_images = []
+        locations = []
+
+        for image in images_rgb:
+            # locations_in_img = self.get_face_locations(image)
+            locations_in_img = self.extract_faces_hog(image)
+
+            if len(locations_in_img) == 1:
+                usable_images.append(image)
+                locations.append(locations_in_img[0])
+
+        # only proceed, if "min_number_faces" images have exactly one face
+        if len(usable_images) >= min_number_faces:
+            # pick the first "min_number_faces" images
+            usable_images = usable_images[:min_number_faces]
+            locations = locations[:min_number_faces]
+
+            # convert location from tuple to dlib rectangle
+            # locations = [self.location_tuple_to_dlib_rectangle(*location) for location in locations]
+
+            # normalize faces based on it´s location
+            for face in [self.normalize_face(face, location) for face, location in zip(usable_images, locations)]:
+                # calculate embedding
+                embedding = self.net.calculate_embedding(face)
+                # insert into users database
+                self.users.append((name, embedding))
+
+            # write face embeddings to pickle file
+            if not self.benchmark_mode:
+                with open(r"user_embedding.p", "wb") as file:
+                    pickle.dump(self.users, file)
+
+            print(f"Registered {min_number_faces} faces for {name}")
+            return True
+
         else:
-            raise Exception("Multiple faces detected")
+            print(f"Only detected {len(usable_images)} usable images")
+            return False
 
-        # calculate embedding
-        embedding = self.net.calculate_embedding(face)
-
-        # insert into users database
-        self.users.append((name, embedding))
-        # write face embeddings to pickle file
-        if not self.benchmark_mode:
-            with open(r"user_embedding.p", "wb") as file:
-                pickle.dump(self.users, file)
-
-        print(f"Registered new face for {name}")
+    @staticmethod
+    def location_tuple_to_dlib_rectangle(x, y, w, h):
+        return dlib.rectangle(x, y, x + w, y + h)
 
     def match_face(self, image, tolerance=0.65):
 
@@ -138,7 +176,7 @@ class FaceAuthentication:
 
         if face_location is not None:
             x, y, w, h = face_location
-            dlib_rectangle = dlib.rectangle(x, y, x + w, y + h)
+            dlib_rectangle = self.location_tuple_to_dlib_rectangle(*face_location)
 
             normalized_face = self.normalize_face(image, dlib_rectangle, size=112, padding=0.3)
 
@@ -193,24 +231,18 @@ class FaceAuthentication:
     def delete_all_users(self):
         self.users = []
 
-    def live_recognition(self, resolution=(640, 480)):
+    def live_recognition(self):
         """
 
         :return:
         """
 
-        if IS_RASPBERRY_PI:
-            print("Use picamera")
-            capture = VideoStream(usePiCamera=True, resolution=resolution).start()
-        else:
-            print("Use USB Webcam")
-            capture = VideoStream(src=0, resolution=resolution).start()
-            # todo: failsave
+        output = MirrorFaceOutput()
 
         # main loop
         while self.active:
 
-            frame = capture.read()
+            frame = self.capture.read()
 
             if frame is not None:
                 start = time.time()
@@ -219,9 +251,14 @@ class FaceAuthentication:
                 if match is not None and distance is not None:
                     print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
 
+                    output.face_detected(match)
+
                 # OpenCV returns bounding box coordinates in (x, y, w, h) order
                 # but we need them in (top, right, bottom, left) order, so we
                 # need to do a bit of reordering
+                else:
+                    output.no_faces()
+
                 if face_location is not None:
                     face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
 
@@ -234,7 +271,7 @@ class FaceAuthentication:
                     if cv.waitKey(20) & 0xFF == ord('d'):
                         break
 
-        capture.stop()
+        self.capture.stop()
         if not IS_RASPBERRY_PI:
             cv.destroyAllWindows()
 
@@ -262,13 +299,29 @@ def main():
     path_niklas2 = os.path.join(dirname, "images/niklas2.jpg")
     path_niklas3 = os.path.join(dirname, "images/niklas3.jpg")
     path_niklas4 = os.path.join(dirname, "images/niklas4.jpg")
-    path_craig = os.path.join(dirname, "images/craig1.jpg")
 
-    auth.register_face("Niklas", cv.imread(path_niklas1))
-    auth.register_face("Niklas", cv.imread(path_niklas2))
-    auth.register_face("Niklas", cv.imread(path_niklas3))
-    auth.register_face("Niklas", cv.imread(path_niklas4))
-    auth.register_face("Craig", cv.imread(path_craig))
+    path_craig1 = os.path.join(dirname, "images/craig1.jpg")
+    path_craig2 = os.path.join(dirname, "images/craig2.jpg")
+    path_craig3 = os.path.join(dirname, "images/craig3.jpg")
+    path_craig4 = os.path.join(dirname, "images/craig4.jpg")
+
+    niklas_imgs = [
+        cv.imread(path_niklas1),
+        cv.imread(path_niklas2),
+        cv.imread(path_niklas3),
+        cv.imread(path_niklas4),
+    ]
+
+    craig_imgs = [
+        cv.imread(path_craig1),
+        cv.imread(path_craig2),
+        cv.imread(path_craig3),
+        cv.imread(path_craig4),
+
+    ]
+
+    print(auth.register_faces("Niklas", niklas_imgs, 4))
+    print(auth.register_faces("Craig", craig_imgs, 4))
 
     auth.live_recognition()
 

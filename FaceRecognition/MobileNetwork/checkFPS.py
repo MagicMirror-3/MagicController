@@ -17,8 +17,8 @@ craig = cv.imread(path_craig)
 
 auth = FaceAuthentication(benchmark_mode=True, lite=True)
 
-auth.register_face("Craig", craig)
-auth.register_face("Niklas", niklas)
+auth.register_faces("Craig", [craig], 1)
+auth.register_faces("Niklas", [niklas], 1)
 
 actual_face = niklas
 
