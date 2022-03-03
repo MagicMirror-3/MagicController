@@ -58,11 +58,13 @@ class HelloCharacteristic(Characteristic):
         App sends value to characteristics
 
         """
-
-        print("received message: ", value, type(value))
-        request = str(value[0])
-        print("decoded")
-        print("request", request)
+        try:
+            print("received message: ", value, type(value))
+            request = str(value[0])
+            print("decoded")
+            print("request", request)
+        except Exception as e:
+            print(e)
 
         # send response
         # value = []
