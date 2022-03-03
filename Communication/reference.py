@@ -59,11 +59,11 @@ class HelloCharacteristic(Characteristic):
 
         """
         try:
-            print("received message: ", value, type(value))
+            print("received message: ", value, type(value), flush=True)
             # request = bytes(value).decode()
             request = str(value[0])
-            print("decoded")
-            print("request", request)
+            print("decoded", flush=True)
+            print("request", request, flush=True)
         except Exception as e:
             print(e, flush=True)
 
