@@ -59,7 +59,9 @@ class HelloCharacteristic(Characteristic):
 
         """
 
+        print("received message")
         request = value.decode("utf-8")
+        print("decoded")
         print("request", request)
 
         time.sleep(0.5)
