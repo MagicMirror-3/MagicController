@@ -57,6 +57,8 @@ class TempCharacteristic(Characteristic):
 
     def get_temperature(self):
         value = []
+        
+        print("Called hello function")
 
         strtemp = "hello " + str(time.time())
         for c in strtemp:
