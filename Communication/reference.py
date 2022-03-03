@@ -50,7 +50,7 @@ class HelloCharacteristic(Characteristic):
 
         Characteristic.__init__(
             self, self.HELLO_CHARACTERISTIC_UUID,
-            ["read", "write", "notify"], service)
+            ["read", "write"], service)
         self.add_descriptor(TempDescriptor(self))
 
     def WriteValue(self, value, options):
