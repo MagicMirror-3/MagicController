@@ -59,7 +59,7 @@ class HelloCharacteristic(Characteristic):
 
         """
 
-        request = str(value[0])
+        request = str(value)
         print("request", request)
 
         time.sleep(0.5)
