@@ -60,16 +60,16 @@ class HelloCharacteristic(Characteristic):
         """
 
         print("received message")
-        request = str(value[0])
+        request = value.decode()
         print("decoded")
         print("request", request)
 
         # send response
-        value = []
-        reply = 'OK'
-        value.append(dbus.Byte(reply.encode()))
-        print("Notify response: OK")
-        self.PropertiesChanged(GATT_CHRC_IFACE, {"Value": value}, [])
+        # value = []
+        # reply = 'OK'
+        # value.append(dbus.Byte(reply.encode()))
+        # print("Notify response: OK")
+        # self.PropertiesChanged(GATT_CHRC_IFACE, {"Value": value}, [])
 
     def ReadValue(self, options):
         """
