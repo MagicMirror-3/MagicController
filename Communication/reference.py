@@ -59,7 +59,7 @@ class HelloCharacteristic(Characteristic):
 
         """
 
-        print("received message")
+        print("received message: ", value, type(value))
         request = value.decode()
         print("decoded")
         print("request", request)
