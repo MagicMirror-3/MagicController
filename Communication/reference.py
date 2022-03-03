@@ -31,7 +31,7 @@ NOTIFY_TIMEOUT = 5000
 class ThermometerAdvertisement(Advertisement):
     def __init__(self, index):
         Advertisement.__init__(self, index, "peripheral")
-        self.add_local_name("MagicMirror")
+        self.add_local_name("Thermometer")
         self.include_tx_power = True
 
 
@@ -57,7 +57,7 @@ class TempCharacteristic(Characteristic):
 
     def get_temperature(self):
         value = []
-        
+
         print("Called hello function")
 
         strtemp = "hello " + str(time.time())
