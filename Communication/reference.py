@@ -64,8 +64,6 @@ class HelloCharacteristic(Characteristic):
         print("decoded")
         print("request", request)
 
-        time.sleep(0.5)
-
         # send response
         value = []
         reply = 'OK'
