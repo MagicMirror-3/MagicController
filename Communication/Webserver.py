@@ -200,13 +200,13 @@ class GetModules(Route):
 
         modules_list = []
         for module_name, configuration in modules:
-            modules_list.append({"module_name": module_name, "configuration": json.loads(configuration)})
+            modules_list.append({"module": module_name, "config": json.loads(configuration)})
 
         resp.media = modules_list
         resp.status = falcon.HTTP_200
 
 
-class IsMaggicMirror:
+class IsMagicMirror:
     def on_get(self, req, resp):
         resp.status = falcon.HTTP_200
 
@@ -222,7 +222,7 @@ def main():
     getLayout = GetLayout(db)
     setLayout = SetLayout(db)
     getModules = GetModules(db)
-    isMagicMirror = IsMaggicMirror()
+    isMagicMirror = IsMagicMirror()
 
     # falcon.App instances are callable WSGI apps
     app = falcon.App()
