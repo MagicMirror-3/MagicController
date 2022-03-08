@@ -2,15 +2,20 @@ import os
 
 
 class User:
+    """
+    Represents a user of the mirror.
+    """
+
     def __init__(self, name=None, identifier=None):
         """
-        Represents a user of the mirror.
+        Creates a digital twin of a user of the mirror.
 
         Args:
             name (str): The name of the user
             identifier (str): A unique identifier of the user. This is needed in case there are multiple users with the
                 same name
         """
+
         self._isDefaultUser = name is None
 
         self._name = name

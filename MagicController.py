@@ -4,7 +4,7 @@ from util import User
 
 class MagicController:
     def __init__(self):
-        self._currentUser: User = User()
+        self._currentUser = User()
         self._configurationHandler = ConfigurationHandler()
 
         # Use the default user config
@@ -20,7 +20,7 @@ class MagicController:
 
         return self._currentUser
 
-    def userDetected(self, detectedUser):
+    def userDetected(self, detectedUser: User):
         """
         This method is called by the face recognition if a user is detected. It prompts the ConfigurationHandler to
         update the config file
@@ -32,8 +32,10 @@ class MagicController:
 
         """
 
-        if detectedUser.getIdentifier() != self._currentUser.getIdentifier() or not self._currentUser.isRealPerson():
+        if detectedUser.getIdentifier() != self._currentUser.getIdentifier():
             self._configurationHandler.updateConfiguration(detectedUser)
+
+            self._currentUser = detectedUser
 
             # TODO: Notify the CommunicationHandler to tell the module to refresh
 

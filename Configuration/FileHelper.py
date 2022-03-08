@@ -3,7 +3,7 @@ from shutil import copyfile
 from util import CONSTANTS
 
 
-def activateConfigFile(filepath):
+def activateConfigFile(filepath: str):
     """
     Activates the given config file by copying it into the main config file.
 

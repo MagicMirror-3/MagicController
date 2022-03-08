@@ -10,7 +10,7 @@ class ConfigurationHandler:
     """
 
     @staticmethod
-    def updateConfiguration(newUser) -> None:
+    def updateConfiguration(newUser: User) -> None:
         """
         Updates the configuration file.
 
@@ -23,12 +23,12 @@ class ConfigurationHandler:
 
         configFile = CONSTANTS.DEFAULT_CONFIG
         if newUser.isRealPerson():
-            configFile = newUser.getIdentifier()
+            configFile = f"config_{newUser.getIdentifier()}.js"
 
         FileHelper.activateConfigFile(os.path.join(CONSTANTS.CONFIG_PATH, configFile))
 
     @staticmethod
-    def saveConfiguration(user, configuration) -> None:
+    def saveConfiguration(user: User, configuration) -> None:
         """
         Save the given configuration for the given user.
 
