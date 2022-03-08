@@ -4,3 +4,4 @@ dlib
 numpy
 imutils
 tensorflow
+falcon
