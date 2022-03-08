@@ -132,7 +132,7 @@ class GetLayout(Route):
             cursor = self.db.execute(sql_query, params['user_id'])
             layout = cursor.fetchone()[0]
 
-            resp.media = {"layout": json.loads(layout)}
+            resp.media = json.loads(layout)
 
             resp.status = falcon.HTTP_200
         else:
@@ -237,6 +237,7 @@ def main():
     app.add_route("/isMagicMirror", isMagicMirror)
 
     with make_server('192.168.2.170', 5000, app) as httpd:
+    with make_server('localhost', 5000, app) as httpd:
         print('Serving on port 5000...')
 
         # Serve until process is killed
