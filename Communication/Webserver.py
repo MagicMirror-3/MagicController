@@ -154,7 +154,7 @@ class SetLayout(Route):
         request_data = req.get_media()
 
         user_id = request_data['user_id']
-        layout = json.dumps(request_data['layout'])
+        layout = request_data['layout']
 
         sql_query = "UPDATE Users SET current_layout=? WHERE user_id==?"
         self.db.execute(sql_query, (layout, user_id))
