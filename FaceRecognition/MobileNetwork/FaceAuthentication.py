@@ -5,13 +5,15 @@ import time
 import cv2 as cv
 import dlib
 from imutils.video import VideoStream
-from threading import Timer
 import os
 
 import numpy as np
 
-from MobileFaceNetStandard import MobileFaceNetStandard
 from MobileFaceNetLite import MobileFaceNetLite
+from MobileFaceNetStandard import MobileFaceNetStandard
+from MirrorFaceOutput import MirrorFaceOutput
+
+IS_RASPBERRY_PI = platform.machine() == "armv7l"
 
 
 class FaceAuthentication:
@@ -19,11 +21,9 @@ class FaceAuthentication:
 
     Optimization:
 
-    https://learnopencv.com/speeding-up-dlib-facial-landmark-detector/
-
     """
 
-    def __init__(self, benchmark_mode=False):
+    def __init__(self, benchmark_mode=False, lite=True, resolution=(640, 480)):
         # load face embeddings from file, if file exists and benchmark mode is turned off
 
         self.benchmark_mode = benchmark_mode
@@ -41,15 +41,41 @@ class FaceAuthentication:
 
         dirname = os.path.dirname(__file__)
         path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
-        path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
+
+        if IS_RASPBERRY_PI or lite:
+            self.net = MobileFaceNetLite()
+            path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
+            self.net.load_model(path_mobile_face_net)
+        else:
+            self.net = MobileFaceNetStandard()
+            path_standard_face_net = os.path.join(dirname, "model/MobileFaceNet.pb")
+            self.net.load_model(path_standard_face_net)
 
         self.active = True
         self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
-        self.net = MobileFaceNetLite()
-        self.net.load_model(path_mobile_face_net)
-        self.timer = None
+
+        # initiate camera
+        if IS_RASPBERRY_PI:
+            print("Use picamera")
+            self.capture = VideoStream(usePiCamera=True, resolution=resolution).start()
+        else:
+            print("Use USB Webcam")
+            self.capture = VideoStream(src=0, resolution=resolution).start()
+
+    def get_face_locations(self, image):
+        image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
+        # extract faces with haar classifier
+        face_locations = self.haar_cascade.detectMultiScale(
+            image_gray,
+            scaleFactor=1.1,
+            minNeighbors=5,
+            minSize=(50, 50)
+        )
+
+        return face_locations
 
     def detect_biggest_face(self, image):
         """
@@ -60,15 +86,7 @@ class FaceAuthentication:
 
         """
 
-        image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-
-        # extract faces with haar classifier
-        face_locations = self.haar_cascade.detectMultiScale(
-            image_gray,
-            scaleFactor=1.2,
-            minNeighbors=5,
-            minSize=(50, 50)
-        )
+        face_locations = self.get_face_locations(image)
 
         if len(face_locations) > 0:
 
@@ -84,40 +102,67 @@ class FaceAuthentication:
         """
 
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-        return self.detector(image_gray, 1)
+        return self.detector(image_gray, 0)
 
-    def register_face(self, name, image):
+    def register_faces(self, name, images, min_number_faces):
         """
 
+        Register multiple faces, there must be at least min_number of images, that contain identifiable faces.
+
+        :param images:
+        :param min_number_faces:
         :param name:
-        :param image:
-        :return:
+        :return: True, if registration was successful, False if it was not
         """
 
-        # extract locations of the faces, should be exactly one
-        face_locations = self.extract_faces_hog(image)
-        if len(face_locations) == 1:
-            location = face_locations[0]
-            # normalize and extract the face
-            face = self.normalize_face(image, location)
-        elif len(face_locations) == 0:
-            raise Exception("No faces detected!")
+        images_rgb = [cv.cvtColor(image, cv.COLOR_BGR2RGB) for image in images]
+
+        # select images, where exactly one face is recognized
+        usable_images = []
+        locations = []
+
+        for image in images_rgb:
+            # locations_in_img = self.get_face_locations(image)
+            locations_in_img = self.extract_faces_hog(image)
+
+            if len(locations_in_img) == 1:
+                usable_images.append(image)
+                locations.append(locations_in_img[0])
+
+        # only proceed, if "min_number_faces" images have exactly one face
+        if len(usable_images) >= min_number_faces:
+            # pick the first "min_number_faces" images
+            usable_images = usable_images[:min_number_faces]
+            locations = locations[:min_number_faces]
+
+            # convert location from tuple to dlib rectangle
+            # locations = [self.location_tuple_to_dlib_rectangle(*location) for location in locations]
+
+            # normalize faces based on it´s location
+            for face in [self.normalize_face(face, location) for face, location in zip(usable_images, locations)]:
+                # calculate embedding
+                embedding = self.net.calculate_embedding(face)
+                # insert into users database
+                self.users.append((name, embedding))
+
+            # write face embeddings to pickle file
+            if not self.benchmark_mode:
+                with open(r"user_embedding.p", "wb") as file:
+                    pickle.dump(self.users, file)
+
+            print(f"Registered {min_number_faces} faces for {name}")
+            return True
+
         else:
-            raise Exception("Multiple faces detected")
+            print(f"Only detected {len(usable_images)} usable images")
+            return False
 
-        # calculate embedding
-        embedding = self.net.calculate_embedding(face)
+    @staticmethod
+    def location_tuple_to_dlib_rectangle(x, y, w, h):
+        return dlib.rectangle(x, y, x + w, y + h)
 
-        # insert into users database
-        self.users.append((name, embedding))
-        # write face embeddings to pickle file
-        if not self.benchmark_mode:
-            with open(r"user_embedding.p", "wb") as file:
-                pickle.dump(self.users, file)
+    def match_face(self, image, tolerance=0.65):
 
-        print(f"Registered new face for {name}")
-
-    def match_face(self, image, tolerance=0.6):
         """
 
         :param image:
@@ -125,11 +170,13 @@ class FaceAuthentication:
         :return:
         """
 
+        image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
+
         face_location = self.detect_biggest_face(image)
 
         if face_location is not None:
             x, y, w, h = face_location
-            dlib_rectangle = dlib.rectangle(x, y, x + w, y + h)
+            dlib_rectangle = self.location_tuple_to_dlib_rectangle(*face_location)
 
             normalized_face = self.normalize_face(image, dlib_rectangle, size=112, padding=0.3)
 
@@ -158,7 +205,7 @@ class FaceAuthentication:
 
         return np.linalg.norm(vector_1 - vector_2)
 
-    def normalize_face(self, image, location, size=112, padding=0.3):
+    def normalize_face(self, image, location, size=112, padding=0.25):
         """
 
         :param padding:
@@ -189,47 +236,44 @@ class FaceAuthentication:
 
         :return:
         """
-        print(platform.machine())
-        if platform.machine() == "armv7l":
-            capture = VideoStream(usePiCamera=True).start()
-        else:
-            capture = VideoStream(src=0).start()
+
+        output = MirrorFaceOutput()
 
         # main loop
         while self.active:
 
-            frame = capture.read()
+            frame = self.capture.read()
 
-            start = time.time()
-            match, distance, face_location = self.match_face(frame)
-            end = time.time()
-            if match is not None and distance is not None:
-                print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
+            if frame is not None:
+                start = time.time()
+                match, distance, face_location = self.match_face(frame, tolerance=0.65)
+                end = time.time()
+                if match is not None and distance is not None:
+                    print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
 
-            # print(1000 * 10 ** 6 / (end - start), "fps")
+                    output.face_detected(match)
 
-            # OpenCV returns bounding box coordinates in (x, y, w, h) order
-            # but we need them in (top, right, bottom, left) order, so we
-            # need to do a bit of reordering
-            if face_location is not None:
-                face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
+                # OpenCV returns bounding box coordinates in (x, y, w, h) order
+                # but we need them in (top, right, bottom, left) order, so we
+                # need to do a bit of reordering
+                else:
+                    output.no_faces()
 
-                # draw rectangles for faces
-                for f1, f2, f3, f4 in face_location:
-                    frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
+                if face_location is not None:
+                    face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
 
-            # extract faces from image
-            # for (y1, x2, y2, x1) in face_locations:
-            # face = frame[y1:y2, x1:x2]
-            # cv.imshow("face", face)
-            # ---------------------------
+                    # draw rectangles for faces
+                    for f1, f2, f3, f4 in face_location:
+                        frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
 
-            cv.imshow('Video', frame)
-            if cv.waitKey(20) & 0xFF == ord('d'):
-                break
+                if not IS_RASPBERRY_PI:
+                    cv.imshow('Video', frame)
+                    if cv.waitKey(20) & 0xFF == ord('d'):
+                        break
 
-        capture.stop()
-        cv.destroyAllWindows()
+        self.capture.stop()
+        if not IS_RASPBERRY_PI:
+            cv.destroyAllWindows()
 
 
 def localize_faces(image, detector, sample=1):
@@ -247,15 +291,37 @@ def localize_faces(image, detector, sample=1):
 
 def main():
     # register faces
-    auth = FaceAuthentication()
+    auth = FaceAuthentication(benchmark_mode=True, lite=True)
 
     dirname = os.path.dirname(__file__)
 
-    path_niklas = os.path.join(dirname, "images/niklas1.jpg")
-    path_craig = os.path.join(dirname, "images/craig1.jpg")
+    path_niklas1 = os.path.join(dirname, "images/niklas1.jpg")
+    path_niklas2 = os.path.join(dirname, "images/niklas2.jpg")
+    path_niklas3 = os.path.join(dirname, "images/niklas3.jpg")
+    path_niklas4 = os.path.join(dirname, "images/niklas4.jpg")
 
-    auth.register_face("Niklas", cv.imread(path_niklas))
-    auth.register_face("Craig", cv.imread(path_craig))
+    path_craig1 = os.path.join(dirname, "images/craig1.jpg")
+    path_craig2 = os.path.join(dirname, "images/craig2.jpg")
+    path_craig3 = os.path.join(dirname, "images/craig3.jpg")
+    path_craig4 = os.path.join(dirname, "images/craig4.jpg")
+
+    niklas_imgs = [
+        cv.imread(path_niklas1),
+        cv.imread(path_niklas2),
+        cv.imread(path_niklas3),
+        cv.imread(path_niklas4),
+    ]
+
+    craig_imgs = [
+        cv.imread(path_craig1),
+        cv.imread(path_craig2),
+        cv.imread(path_craig3),
+        cv.imread(path_craig4),
+
+    ]
+
+    print(auth.register_faces("Niklas", niklas_imgs, 4))
+    print(auth.register_faces("Craig", craig_imgs, 4))
 
     auth.live_recognition()
 

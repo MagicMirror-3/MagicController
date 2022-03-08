@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
-
 def import_tensorflow():
     import os
     # https://stackoverflow.com/questions/40426502/is-there-a-way-to-suppress-the-messages-tensorflow-prints/40426709
@@ -16,7 +15,6 @@ def import_tensorflow():
     import logging
     tf.get_logger().setLevel(logging.ERROR)
     return tf
-
 
 class MobileFaceNet(ABC):
 
