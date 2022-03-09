@@ -1,31 +1,15 @@
 import sqlite3
 
 
-class SingletonMeta(type):
-    """
-    The Singleton class can be implemented in different ways in Python. Some
-    possible methods include: base class, decorator, metaclass. We will use the
-    metaclass because it is best suited for this purpose.
-    """
-
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            instance = super().__call__(*args, **kwargs)
-            cls._instances[cls] = instance
-        return cls._instances[cls]
-
-
-class DatabaseAdapter(metaclass=SingletonMeta):
+class DatabaseAdapter:
     def __init__(self, database_path):
         self.__db = sqlite3.connect(database_path)
 
-    def insert_user(self, firstname, surname, password, current_layout):
+    def insert_user(self, firstname, lastname, password, current_layout):
         """
 
         :param firstname: firstname
-        :param surname: surname
+        :param lastname: lastname
         :param password: password
         :param current_layout: Current layout (JSON format)
         :return: None
@@ -33,37 +17,37 @@ class DatabaseAdapter(metaclass=SingletonMeta):
 
         sql_query = "INSERT INTO USERS VALUES (null,?,?,?,?)"
 
-        self.__db.execute(sql_query, (firstname, surname, password, current_layout))
+        self.__db.execute(sql_query, (firstname, lastname, password, current_layout))
         self.__db.commit()
 
     def get_users(self):
         """
         Returns all users, where each user is a tuple in the form:
-        (user_id, firstname, surname)
+        (user_id, firstname, lastname)
 
         :return: list[(int, string, string)]
         """
 
-        sql_query = "SELECT user_id, firstname, surname FROM USERS"
+        sql_query = "SELECT user_id, firstname, lastname FROM USERS"
 
         cursor = self.__db.execute(sql_query)
         return cursor.fetchall()
 
-    def update_user(self, user_id, new_firstname, new_surname, new_password):
+    def update_user(self, user_id, new_firstname, new_lastname, new_password):
         """
 
         Update a user by his user_id.
 
         :param user_id: user_id of user to update
         :param new_firstname: new firstname
-        :param new_surname: new surname
+        :param new_lastname: new lastname
         :param new_password: new password
         :return: None
         """
 
-        sql_query = "UPDATE Users SET firstname=?, surname=?, password=? WHERE user_id==?"
+        sql_query = "UPDATE Users SET firstname=?, lastname=?, password=? WHERE user_id==?"
         self.__db.execute(sql_query, (new_firstname,
-                                      new_surname,
+                                      new_lastname,
                                       new_password,
                                       user_id))
         self.__db.commit()
