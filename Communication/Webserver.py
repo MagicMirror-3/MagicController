@@ -1,11 +1,9 @@
-# examples/things.py
-
-# Let's get this party started!
 import json
 from wsgiref.simple_server import make_server
 
 import falcon
 import sqlite3
+from DatabaseAdapter import DatabaseAdapter
 
 
 class Route:
@@ -32,12 +30,11 @@ class CreateUser(Route):
         }
 
         """
-        request_data = req.get_media()
+        data = req.get_media()
 
-        sql_query = "INSERT INTO USERS VALUES (null, :firstname, :surname, :password, :current_layout)"
-        # todo: Call Image recognition
-        self.db.execute(sql_query, request_data)
-        self.db.commit()
+        # todo: Call Face Authentications
+
+        self.db.insert_user(data["firstname"], data["surname"], data["password"], data["current_layout"])
 
         resp.status = falcon.HTTP_201
 
@@ -57,9 +54,8 @@ class GetUsers(Route):
 
         """
 
-        sql_query = "SELECT user_id, firstname, surname FROM USERS"
-        cursor = self.db.execute(sql_query)
-        results = cursor.fetchall()
+        results = self.db.get_users()
+
         users = []
         for user_id, firstname, surname in results:
             user = {"user_id": user_id, "firstname": firstname, "surname": surname}
@@ -84,12 +80,11 @@ class UpdateUser(Route):
         """
 
         request_data = req.get_media()
-        sql_query = "UPDATE Users SET firstname=?, surname=?, password=? WHERE user_id==?"
-        self.db.execute(sql_query, (request_data['firstname'],
-                                    request_data['surname'],
-                                    request_data['new_password'],
-                                    request_data['user_id']))
-        self.db.commit()
+
+        self.db.update_user(request_data['user_id'],
+                            request_data['firstname'],
+                            request_data['surname'],
+                            request_data['new_password'])
 
         resp.status = falcon.HTTP_201
 
@@ -101,42 +96,33 @@ class GetLayout(Route):
         The parameter "layout" specifies the config file.
 
         {
-            "layout": {
-                "modules": [
-                    {
-                        "module": "clock",
-                        "position": "top_left"
-                    },
-                    {
-                        "module": "compliments",
-                        "position": "lower_third"
-                    },
-                    {
-                        "module": "currentweather",
-                        "position": "top_right",
-                        "config": {
-                            "location": "New York",
-                            "appid": "YOUR_OPENWEATHER_API_KEY"
-                        }
+            "layout": [
+                {
+                    "module": "clock",
+                    "position": "top_left"
+                },
+                {
+                    "module": "compliments",
+                    "position": "lower_third"
+                },
+                {
+                    "module": "currentweather",
+                    "position": "top_right",
+                    "config": {
+                        "location": "New York",
+                        "appid": "YOUR_OPENWEATHER_API_KEY"
                     }
-                ]
-            }
+                }
+            ]
         }
 
         """
 
-        params = req.params
+        user_id = req.params['user_id']
+        layout = self.db.get_layout_of_user(user_id)
 
-        if 'user_id' in params:
-            sql_query = "SELECT current_layout FROM USERS WHERE user_id==?"
-            cursor = self.db.execute(sql_query, params['user_id'])
-            layout = cursor.fetchone()[0]
-
-            resp.media = json.loads(layout)
-
-            resp.status = falcon.HTTP_200
-        else:
-            resp.status = falcon.HTTP_400
+        resp.media = json.loads(layout)
+        resp.status = falcon.HTTP_200
 
 
 class SetLayout(Route):
@@ -153,12 +139,14 @@ class SetLayout(Route):
 
         request_data = req.get_media()
 
-        user_id = request_data['user_id']
-        layout = request_data['layout']
+        if isinstance(request_data['layout'], list):
+            layout = json.dumps(request_data['layout'])
+        elif isinstance(request_data['layout'], str):
+            layout = request_data['layout']
+        else:
+            raise Exception
 
-        sql_query = "UPDATE Users SET current_layout=? WHERE user_id==?"
-        self.db.execute(sql_query, (layout, user_id))
-        self.db.commit()
+        self.db.set_layout_of_user(request_data['user_id'], layout)
 
         resp.status = falcon.HTTP_201
 
@@ -191,18 +179,14 @@ class GetModules(Route):
 
         """
 
-        user_id = req.params['user_id']
+        modules = self.db.get_module_configs(req.params['user_id'])
 
-        sql_query = "SELECT name, ifnull(configuration, default_config) as configuration FROM Modules \
-        LEFT OUTER JOIN (SELECT * FROM ModuleConfigurations WHERE user_id=?) as a ON Modules.name = a.module;"
-        cursor = self.db.execute(sql_query, (user_id,))
-        modules = cursor.fetchall()
-
-        modules_list = []
+        # convert the database result into json
+        modules_json = []
         for module_name, configuration in modules:
-            modules_list.append({"module": module_name, "config": json.loads(configuration)})
+            modules_json.append({"module": module_name, "config": json.loads(configuration)})
 
-        resp.media = modules_list
+        resp.media = modules_json
         resp.status = falcon.HTTP_200
 
 
@@ -213,7 +197,7 @@ class IsMagicMirror:
 
 def main():
     # database connection
-    db = sqlite3.connect('MagicMirrorDB.db')
+    db = DatabaseAdapter("../MagicMirrorDB.db")
 
     # Resources are represented by long-lived class instances
     createUser = CreateUser(db)
@@ -236,7 +220,7 @@ def main():
     app.add_route('/getModules', getModules)
     app.add_route("/isMagicMirror", isMagicMirror)
 
-    with make_server('localhost', 5000, app) as httpd:
+    with make_server('192.168.2.170', 5000, app) as httpd:
         print('Serving on port 5000...')
 
         # Serve until process is killed
