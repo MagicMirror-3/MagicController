@@ -140,6 +140,24 @@ class CommunicationHandler:
             resp.media = json.loads(layout)
             resp.status = falcon.HTTP_200
 
+    class DeleteUser(Route):
+        def on_post(self, req, resp):
+            """
+            Delete a user. Expects a JSON string of the following format:
+
+            {
+                "user_id": INTEGER
+            }
+
+            """
+            request_data = req.get_media()
+            user_id = request_data['user_id']
+
+            # delete user from database
+            self.db.delete_user(user_id)
+
+            resp.status = falcon.HTTP_201
+
     class SetLayout(Route):
         def on_post(self, req, resp):
             """
@@ -216,6 +234,7 @@ class CommunicationHandler:
         updateUser = self.UpdateUser(self.db)
         getLayout = self.GetLayout(self.db)
         setLayout = self.SetLayout(self.db)
+        deleteUser = self.DeleteUser(self.db)
         getModules = self.GetModules(self.db)
         isMagicMirror = self.IsMagicMirror()
 
@@ -228,6 +247,7 @@ class CommunicationHandler:
         self.app.add_route('/updateUser', updateUser)
         self.app.add_route('/getLayout', getLayout)
         self.app.add_route('/setLayout', setLayout)
+        self.app.add_route('/deleteUser', deleteUser)
         self.app.add_route('/getModules', getModules)
         self.app.add_route("/isMagicMirror", isMagicMirror)
 

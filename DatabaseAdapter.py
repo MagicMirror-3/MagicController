@@ -52,6 +52,20 @@ class DatabaseAdapter:
                                       user_id))
         self.__db.commit()
 
+    def delete_user(self, user_id):
+        """
+        Delete a user.
+
+        :param user_id: user_id
+        :return: None
+        """
+
+        sql_query = "DELETE FROM ModuleConfigurations WHERE user_id=?"
+        self.__db.execute(sql_query, (user_id,))
+        sql_query = "DELETE FROM Users WHERE user_id=?"
+        self.__db.execute(sql_query, (user_id,))
+        self.__db.commit()
+
     def get_layout_of_user(self, user_id):
         """
         Get the current layout of a user. If it doesn´t exist, return None
