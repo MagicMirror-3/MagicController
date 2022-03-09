@@ -1,10 +1,11 @@
 import json
 from threading import Thread
-import time
 from wsgiref.simple_server import make_server
 
 import falcon
 from DatabaseAdapter import DatabaseAdapter
+from FaceRecognition import FaceAuthentication
+from util import get_image_from_base64
 
 
 class Route:
@@ -24,6 +25,10 @@ class CommunicationHandler:
         self.thread.start()
 
     class CreateUser(Route):
+        def __init__(self, db):
+            super().__init__(db)
+            self.face_authentication = FaceAuthentication()
+
         def on_post(self, req, resp):
             """
             Create a user. Expects Dictionary of following type:
@@ -43,14 +48,16 @@ class CommunicationHandler:
 
             """
             data = req.get_media()
+            images = [get_image_from_base64(base64_string) for base64_string in data["images"]]
 
-            # todo: Call Face Authentications
-
-            self.db.insert_user(data["firstname"], data["lastname"], data["password"], data["current_layout"])
-
-            resp.status = falcon.HTTP_201
-
-            # todo: not created
+            # Call face authentication
+            if self.face_authentication.register_faces("Niklas", images, min_number_faces=1):
+                # When face_authentication returns true, the user was created.
+                resp.status = falcon.HTTP_201
+                self.db.insert_user(data["firstname"], data["lastname"], data["password"], data["current_layout"])
+            else:
+                # When it returns false, the user was not created, because the request did not contain good images
+                resp.status = falcon.HTTP_400
 
     class GetUsers(Route):
         def on_get(self, req, resp):
@@ -237,4 +244,3 @@ class CommunicationHandler:
 
 if __name__ == '__main__':
     handler = CommunicationHandler()
-

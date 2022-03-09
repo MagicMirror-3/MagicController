@@ -1,4 +1,8 @@
+import base64
 import os
+
+import cv2
+import numpy as np
 
 
 class User:
@@ -63,3 +67,9 @@ class CONSTANTS:
     CONFIG_PATH = os.path.join(MAGIC_MIRROR_DIR, "config")
     CONFIG_FILE = "config.js"
     DEFAULT_CONFIG = "default_config.js"
+
+
+def get_image_from_base64(image_string):
+    image_bytes = base64.b64decode(image_string)
+    image_numpy_array = np.frombuffer(image_bytes, dtype=np.uint8)
+    return cv2.imdecode(image_numpy_array, flags=1)

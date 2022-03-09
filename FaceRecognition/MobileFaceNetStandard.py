@@ -16,7 +16,7 @@ import os
 import cv2 as cv
 import dlib
 
-from MobileFaceNet import MobileFaceNet, import_tensorflow
+from .MobileFaceNet import MobileFaceNet, import_tensorflow
 
 tf = import_tensorflow()
 

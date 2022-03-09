@@ -9,9 +9,9 @@ import os
 
 import numpy as np
 
-from MobileFaceNetLite import MobileFaceNetLite
-from MobileFaceNetStandard import MobileFaceNetStandard
-from MirrorFaceOutput import MirrorFaceOutput
+from .MobileFaceNetLite import MobileFaceNetLite
+from .MobileFaceNetStandard import MobileFaceNetStandard
+from .MirrorFaceOutput import MirrorFaceOutput
 
 IS_RASPBERRY_PI = platform.machine() == "armv7l"
 
@@ -104,7 +104,7 @@ class FaceAuthentication:
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         return self.detector(image_gray, 0)
 
-    def register_faces(self, name, images, min_number_faces):
+    def register_faces(self, name, images, min_number_faces=1):
         """
 
         Register multiple faces, there must be at least min_number of images, that contain identifiable faces.

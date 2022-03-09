@@ -5,7 +5,7 @@ import dlib
 import numpy as np
 import cv2 as cv
 
-from MobileFaceNet import MobileFaceNet, import_tensorflow
+from .MobileFaceNet import MobileFaceNet, import_tensorflow
 
 
 # import tensorflow conbditionally, use Interpreter from tflite_runtime if one is on the raspberry pi

@@ -1,5 +1,6 @@
 from threading import Timer
 
+
 class MirrorFaceOutput:
     """
 
@@ -23,9 +24,9 @@ class MirrorFaceOutput:
             self.timer.cancel()
 
         if detected_user != self.current_identified_user:
-            print('#'*50)
+            print('#' * 50)
             print(f"Change Layout to: {detected_user}")
-            print('#'*50)
+            print('#' * 50)
 
             # set new detected user
             self.current_identified_user = detected_user
