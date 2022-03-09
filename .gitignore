@@ -146,3 +146,4 @@ FaceRecognition/MobileNetwork/benchmark_images
 FaceRecognition/benchmark/dataset.p
 
 !/FaceRecognition/MobileNetwork/user_embedding.p
+Communication/user_embedding.p
