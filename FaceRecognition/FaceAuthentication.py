@@ -62,7 +62,7 @@ class FaceAuthentication:
             self.capture = VideoStream(usePiCamera=True, resolution=resolution).start()
         else:
             print("Use USB Webcam")
-            self.capture = VideoStream(src=0, resolution=resolution).start()
+            #self.capture = VideoStream(src=0, resolution=resolution).start()
 
     def get_face_locations(self, image):
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -104,16 +104,19 @@ class FaceAuthentication:
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         return self.detector(image_gray, 0)
 
-    def register_faces(self, name, images, min_number_faces=1):
+    def register_faces(self, name, images, min_number_faces=1, mode='fast'):
         """
 
         Register multiple faces, there must be at least min_number of images, that contain identifiable faces.
 
+        :param mode:
         :param images:
         :param min_number_faces:
         :param name:
         :return: True, if registration was successful, False if it was not
         """
+
+        FAST = mode == 'fast'
 
         images_rgb = [cv.cvtColor(image, cv.COLOR_BGR2RGB) for image in images]
 
@@ -122,8 +125,10 @@ class FaceAuthentication:
         locations = []
 
         for image in images_rgb:
-            # locations_in_img = self.get_face_locations(image)
-            locations_in_img = self.extract_faces_hog(image)
+            if FAST:
+                locations_in_img = self.get_face_locations(image)
+            else:
+                locations_in_img = self.extract_faces_hog(image)
 
             if len(locations_in_img) == 1:
                 usable_images.append(image)
@@ -136,7 +141,8 @@ class FaceAuthentication:
             locations = locations[:min_number_faces]
 
             # convert location from tuple to dlib rectangle
-            # locations = [self.location_tuple_to_dlib_rectangle(*location) for location in locations]
+            if FAST:
+                locations = [self.location_tuple_to_dlib_rectangle(*location) for location in locations]
 
             # normalize faces based on it´s location
             for face in [self.normalize_face(face, location) for face, location in zip(usable_images, locations)]:

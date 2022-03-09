@@ -50,8 +50,8 @@ class CommunicationHandler:
             data = req.get_media()
             images = [get_image_from_base64(base64_string) for base64_string in data["images"]]
 
-            # Call face authentication
-            if self.face_authentication.register_faces("Niklas", images, min_number_faces=1):
+            # Call face authentication to register the users face
+            if self.face_authentication.register_faces("Niklas", images, min_number_faces=1, mode='fast'):
                 # When face_authentication returns true, the user was created.
                 resp.status = falcon.HTTP_201
                 self.db.insert_user(data["firstname"], data["lastname"], data["password"], data["current_layout"])

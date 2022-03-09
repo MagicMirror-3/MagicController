@@ -72,4 +72,5 @@ class CONSTANTS:
 def get_image_from_base64(image_string):
     image_bytes = base64.b64decode(image_string)
     image_numpy_array = np.frombuffer(image_bytes, dtype=np.uint8)
-    return cv2.imdecode(image_numpy_array, flags=1)
+    image = cv2.imdecode(image_numpy_array, flags=1)
+    return cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
