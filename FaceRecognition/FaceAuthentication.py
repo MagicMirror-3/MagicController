@@ -62,7 +62,7 @@ class FaceAuthentication:
             self.capture = VideoStream(usePiCamera=True, resolution=resolution).start()
         else:
             print("Use USB Webcam")
-            #self.capture = VideoStream(src=0, resolution=resolution).start()
+            # self.capture = VideoStream(src=0, resolution=resolution).start()
 
     def get_face_locations(self, image):
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -151,7 +151,7 @@ class FaceAuthentication:
                 # insert into users database
                 self.users.append((name, embedding))
 
-            # write face embeddings to pickle file
+            # persist face embeddings in pickle file
             if not self.benchmark_mode:
                 with open(r"user_embedding.p", "wb") as file:
                     pickle.dump(self.users, file)
@@ -236,6 +236,23 @@ class FaceAuthentication:
 
     def delete_all_users(self):
         self.users = []
+
+    def delete_user(self, name):
+        """
+        Remove user from memory and pickle file
+
+        :param name:
+        :return:
+        """
+        for index, (username, _) in enumerate(self.users):
+            if username == name:
+                self.users.pop(index)
+                break
+        print("removed user")
+        # also save changes in pickle file
+        if not self.benchmark_mode:
+            with open(r"user_embedding.p", "wb") as file:
+                pickle.dump(self.users, file)
 
     def live_recognition(self):
         """

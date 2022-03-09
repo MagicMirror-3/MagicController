@@ -66,6 +66,15 @@ class DatabaseAdapter:
         self.__db.execute(sql_query, (user_id,))
         self.__db.commit()
 
+    def get_next_user_id(self):
+        """
+        return the next user_id when a use is created.
+        :return:
+        """
+        sql_query = "SELECT MAX(user_id) FROM Users"
+        cursor = self.__db.execute(sql_query)
+        return cursor.fetchone()[0] + 1
+
     def get_layout_of_user(self, user_id):
         """
         Get the current layout of a user. If it doesn´t exist, return None
@@ -112,3 +121,12 @@ class DatabaseAdapter:
 
     def close(self):
         self.__db.close()
+
+
+def main():
+    adapter = DatabaseAdapter('MagicMirrorDB.db')
+    adapter.get_next_user_id()
+
+
+if __name__ == "__main__":
+    main()
