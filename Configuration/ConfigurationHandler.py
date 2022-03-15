@@ -24,7 +24,7 @@ class ConfigurationHandler:
 
         try:
             # Create the database adapter here to prevent sqlite3 thread error
-            database = DatabaseAdapter("../MagicMirrorDB.db")
+            database = DatabaseAdapter()
 
             # Create a string with the contents of the template config
             configFile = FileHelper.readFile(CONSTANTS.TEMPLATE_CONFIG)

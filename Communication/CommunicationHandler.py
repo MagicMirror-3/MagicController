@@ -251,7 +251,7 @@ class CommunicationHandler:
             resp.status = falcon.HTTP_200
 
     def run(self):
-        self.db = DatabaseAdapter(os.path.abspath("MagicMirrorDB.db"))
+        self.db = DatabaseAdapter()
 
         # Resources are represented by long-lived class instances
         createUser = self.CreateUser(self.db, self.mediator)

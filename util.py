@@ -67,6 +67,9 @@ class CONSTANTS:
     # The path to the directory of the magic mirror
     MAGIC_MIRROR_DIR = os.path.normpath(os.path.join(BASE_PATH, "..", "MagicMirror"))
 
+    # Database file
+    DATABASE_PATH = os.path.join(BASE_PATH, "MagicMirrorDB.db")
+
     # ---------- [ConfigurationHandler] ---------- #
     CONFIG_PATH = os.path.join(MAGIC_MIRROR_DIR, "config")
     CONFIG_FILE = "config.js"

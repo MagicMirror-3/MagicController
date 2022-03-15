@@ -1,9 +1,11 @@
 import sqlite3
 
+from util import CONSTANTS
+
 
 class DatabaseAdapter:
-    def __init__(self, database_path):
-        self.__db = sqlite3.connect(database_path)
+    def __init__(self):
+        self.__db = sqlite3.connect(CONSTANTS.DATABASE_PATH)
 
     def insert_user(self, firstname, lastname, password, current_layout):
         """
@@ -124,7 +126,7 @@ class DatabaseAdapter:
 
 
 def main():
-    adapter = DatabaseAdapter('MagicMirrorDB.db')
+    adapter = DatabaseAdapter()
     adapter.get_next_user_id()
 
 
