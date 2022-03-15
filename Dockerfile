@@ -22,11 +22,11 @@ RUN pip install --no-cache-dir "picamera[array]"
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
 RUN apt install -y nodejs
 RUN git clone https://github.com/MichMich/MagicMirror
-WORKDIR MagicMirror
+WORKDIR /MagicMirror
 RUN npm install --only=prod --omit=dev
 
 # install magicModule
-WORKDIR modules
+WORKDIR /MagicMirror/modules
 RUN git clone https://github.com/n1klasD/MagicModule
 
 WORKDIR /
@@ -34,7 +34,7 @@ WORKDIR /
 # install MagicController
 RUN mkdir MagicController
 COPY . /MagicController
-WORKDIR MagicController
+WORKDIR /MagicController
 RUN pip3 install -r requirements_raspberry.txt
 
 WORKDIR /
