@@ -287,7 +287,7 @@ class FaceAuthentication:
 
                 if frame is not None:
                     start = time.time()
-                    match, distance, face_location = self.match_face(frame, tolerance=0.65)
+                    match, distance, face_location = self.match_face(frame, tolerance=1)
                     end = time.time()
                     if match is not None and distance is not None:
                         print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
