@@ -18,7 +18,7 @@ ENV READTHEDOCS True
 
 RUN pip install --no-cache-dir "picamera[array]"
 
-RUN pip install --no-cache-dir falcon request
+RUN pip install --no-cache-dir falcon requests
 
 # install nodejs and magicMirror
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
