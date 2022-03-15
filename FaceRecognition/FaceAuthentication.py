@@ -1,6 +1,7 @@
 import pickle
 import platform
 import time
+from threading import Thread
 
 import cv2 as cv
 import dlib
@@ -9,9 +10,9 @@ import os
 
 import numpy as np
 
-from .MobileFaceNetLite import MobileFaceNetLite
-from .MobileFaceNetStandard import MobileFaceNetStandard
-from .MirrorFaceOutput import MirrorFaceOutput
+from FaceRecognition.MobileFaceNetLite import MobileFaceNetLite
+from FaceRecognition.MobileFaceNetStandard import MobileFaceNetStandard
+from FaceRecognition.MirrorFaceOutput import MirrorFaceOutput
 
 IS_RASPBERRY_PI = platform.machine() == "armv7l"
 
@@ -23,7 +24,7 @@ class FaceAuthentication:
 
     """
 
-    def __init__(self, benchmark_mode=False, lite=True, resolution=(640, 480)):
+    def __init__(self, benchmark_mode=False, lite=True, resolution=(640, 480), mediator=None):
         # load face embeddings from file, if file exists and benchmark mode is turned off
 
         self.benchmark_mode = benchmark_mode
@@ -62,7 +63,13 @@ class FaceAuthentication:
             self.capture = VideoStream(usePiCamera=True, resolution=resolution).start()
         else:
             print("Use USB Webcam")
-            # self.capture = VideoStream(src=0, resolution=resolution).start()
+            self.capture = VideoStream(src=0, resolution=resolution).start()
+
+        self.mediator = mediator
+
+        # threading
+        self.thread = Thread(target=self.run, name="FaceAuthentication")
+        self.thread.start()
 
     def get_face_locations(self, image):
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -116,6 +123,8 @@ class FaceAuthentication:
         :return: True, if registration was successful, False if it was not
         """
 
+        self.active = False
+
         FAST = mode == 'fast'
 
         images_rgb = [cv.cvtColor(image, cv.COLOR_BGR2RGB) for image in images]
@@ -124,6 +133,7 @@ class FaceAuthentication:
         usable_images = []
         locations = []
 
+        # An image is usable, if exactly one face is detected
         for image in images_rgb:
             if FAST:
                 locations_in_img = self.get_face_locations(image)
@@ -157,10 +167,12 @@ class FaceAuthentication:
                     pickle.dump(self.users, file)
 
             print(f"Registered {min_number_faces} faces for {name}")
+            self.active = True
             return True
 
         else:
             print(f"Only detected {len(usable_images)} usable images")
+            self.active = True
             return False
 
     @staticmethod
@@ -181,6 +193,10 @@ class FaceAuthentication:
         face_location = self.detect_biggest_face(image)
 
         if face_location is not None:
+            # when no users are registered, don´t calculate the embedding for a face
+            if len(self.users) == 0:
+                return None, None, [face_location]
+
             x, y, w, h = face_location
             dlib_rectangle = self.location_tuple_to_dlib_rectangle(*face_location)
 
@@ -194,7 +210,7 @@ class FaceAuthentication:
                 distances.append(self.distance_euclid(unknown_embedding, encoding))
 
             if min(distances) <= tolerance:
-                return self.users[distances.index(min(distances))][0], min(distances), [(x, y, w, h)]
+                return self.users[distances.index(min(distances))][0], min(distances), [face_location]
             else:
                 return "unknown", None, None
         else:
@@ -254,45 +270,48 @@ class FaceAuthentication:
             with open(r"user_embedding.p", "wb") as file:
                 pickle.dump(self.users, file)
 
-    def live_recognition(self):
+    def run(self):
         """
 
         :return:
         """
 
-        output = MirrorFaceOutput()
+        output = MirrorFaceOutput(self.mediator)
 
         # main loop
-        while self.active:
+        while True:
+            if self.active:
 
-            frame = self.capture.read()
+                frame = self.capture.read()
 
-            if frame is not None:
-                start = time.time()
-                match, distance, face_location = self.match_face(frame, tolerance=0.65)
-                end = time.time()
-                if match is not None and distance is not None:
-                    print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
+                if frame is not None:
+                    start = time.time()
+                    match, distance, face_location = self.match_face(frame, tolerance=0.65)
+                    end = time.time()
+                    if match is not None and distance is not None:
+                        print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
 
-                    output.face_detected(match)
+                        output.face_detected(match)
 
-                # OpenCV returns bounding box coordinates in (x, y, w, h) order
-                # but we need them in (top, right, bottom, left) order, so we
-                # need to do a bit of reordering
-                else:
-                    output.no_faces()
+                    # OpenCV returns bounding box coordinates in (x, y, w, h) order
+                    # but we need them in (top, right, bottom, left) order, so we
+                    # need to do a bit of reordering
+                    else:
+                        output.no_faces()
 
-                if face_location is not None:
-                    face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
+                    if face_location is not None:
+                        face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
 
-                    # draw rectangles for faces
-                    for f1, f2, f3, f4 in face_location:
-                        frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
+                        # draw rectangles for faces
+                        for f1, f2, f3, f4 in face_location:
+                            frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
 
-                if not IS_RASPBERRY_PI:
-                    cv.imshow('Video', frame)
-                    if cv.waitKey(20) & 0xFF == ord('d'):
-                        break
+                    if not IS_RASPBERRY_PI:
+                        cv.imshow('Video', frame)
+                        if cv.waitKey(20) & 0xFF == ord('d'):
+                            break
+            else:
+                pass
 
         self.capture.stop()
         if not IS_RASPBERRY_PI:
@@ -343,10 +362,8 @@ def main():
 
     ]
 
-    print(auth.register_faces("Niklas", niklas_imgs, 4))
-    print(auth.register_faces("Craig", craig_imgs, 4))
-
-    auth.live_recognition()
+    print(auth.register_faces("Niklas", niklas_imgs, 1))
+    print(auth.register_faces("Craig", craig_imgs, 1))
 
 
 if __name__ == "__main__":
