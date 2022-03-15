@@ -77,14 +77,14 @@ class DatabaseAdapter:
 
     def get_layout_of_user(self, user_id):
         """
-        Get the current layout of a user. If it doesn´t exist, return None
+        Get the current layout of a user. If it doesn't exist, return None
 
         :param user_id: user_id
         :return: None
         """
 
         sql_query = "SELECT current_layout FROM USERS WHERE user_id==?"
-        cursor = self.__db.execute(sql_query, user_id)
+        cursor = self.__db.execute(sql_query, str(user_id))
         layout = cursor.fetchone()
 
         if layout:

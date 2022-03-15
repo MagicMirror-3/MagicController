@@ -1,0 +1,35 @@
+{
+	"address": "localhost",
+	"port": 8080,
+	"basePath": "/",
+	"ipWhitelist": [
+		"127.0.0.1",
+		"::ffff:127.0.0.1",
+		"::1"
+	],
+	"useHttps": false,
+	"httpsPrivateKey": "",
+	"httpsCertificate": "",
+	"language": "en",
+	"locale": "en-US",
+	"logLevel": [
+		"INFO",
+		"LOG",
+		"WARN",
+		"ERROR"
+	],
+	"timeFormat": 24,
+	"units": "metric",
+	"modules": [
+		{
+			"module": "MagicModule",
+			"position": "fullscreen_above"
+		}
+	],
+	"electronOptions": {
+		"closable": true,
+		"title": "MagicMirror Project",
+		"show": false,
+		"fullscreen": false
+	}
+}
