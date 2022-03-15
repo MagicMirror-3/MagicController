@@ -18,7 +18,24 @@ ENV READTHEDOCS True
 
 RUN pip install --no-cache-dir "picamera[array]"
 
-COPY ./FaceRecognition /
+# install nodejs and magicMirror
+RUN curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+RUN apt install -y nodejs
+RUN git clone https://github.com/MichMich/MagicMirror
+RUN cd MagicMirror
+RUN npm install --only=prod --omit=dev
 
-CMD ["python3", "/MobileNetwork/FaceAuthentication.py"]
+# install magicModule
+RUN cd modules
+RUN git clone https://github.com/n1klasD/MagicModule
+
+RUN cd /
+
+# install MagicController
+RUN git clone https://github.com/n1klasD/MagicController
+RUN cd MagicController
+RUN pip3 install -r requirements.txt
+
+# start magicMirror
+# start start Controller
 
