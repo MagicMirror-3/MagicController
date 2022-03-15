@@ -1,4 +1,5 @@
 import json
+import time
 
 from .FileHelper import FileHelper
 from DatabaseAdapter import DatabaseAdapter
@@ -11,12 +12,12 @@ class ConfigurationHandler:
     """
 
     @staticmethod
-    def updateConfiguration(newUser: User) -> bool:
+    def updateConfiguration(newUser: int) -> bool:
         """
         Updates the configuration file.
 
         Args:
-            newUser (User): The user to use the configuration of
+            newUser (int): The user id to use the configuration of
 
         Returns:
             bool: True, if the config file was updates successfully
@@ -29,16 +30,12 @@ class ConfigurationHandler:
             # Create a string with the contents of the template config
             configFile = FileHelper.readFile(CONSTANTS.TEMPLATE_CONFIG)
 
-            layout = []
             try:
-                if newUser.isRealPerson():
-                    # Get the layout of the user
-                    layout = json.loads(database.get_layout_of_user(newUser.getIdentifier()))
+                # Get the layout of the user
+                layout = json.loads(database.get_layout_of_user(newUser))
 
-                    # Close the connection
-                    database.close()
-                else:
-                    print("Handle default user layout")
+                # Close the connection
+                database.close()
             except Exception as e:
                 print(f"Something went wrong while retrieving data from the database: {e}")
                 return False
@@ -69,4 +66,8 @@ class ConfigurationHandler:
 
 if __name__ == '__main__':
     handler = ConfigurationHandler()
-    handler.updateConfiguration(User("Simon", 1))
+    handler.updateConfiguration(0)
+
+    time.sleep(10)
+
+    handler.updateConfiguration(1)
