@@ -1,7 +1,7 @@
 import json
 import time
 
-from Configuration.FileHelper import FileHelper
+from FileHelper import FileHelper
 from DatabaseAdapter import DatabaseAdapter
 from util import User, CONSTANTS
 
