@@ -6,6 +6,7 @@ from util import User
 from Communication import CommunicationHandler
 from FaceRecognition import FaceAuthentication
 from FaceRecognition import MirrorFaceOutput
+from Configuration import ConfigurationHandler
 
 
 class Mediator(ABC):
@@ -23,6 +24,7 @@ class MagicController(Mediator):
     def __init__(self):
         self.communication_handler = CommunicationHandler(self)
         self.face_authentication = FaceAuthentication(benchmark_mode=True, lite=True, resolution=(640, 480), mediator=self)
+        self.config_handler = ConfigurationHandler()
 
     '''
         self._currentUser = User()
@@ -68,16 +70,18 @@ class MagicController(Mediator):
             images = args[2]
 
             # Call FaceAuthentication to register faces
-            success = self.face_authentication.register_faces(user_id, images, min_number_faces=1, mode='fast')
+            success = self.face_authentication.register_faces(1, images, min_number_faces=1, mode='fast')
 
             # call callback, to send the response to the http server.
             callback(success)
 
         # Face Recognition detected a face
         if isinstance(sender, MirrorFaceOutput):
-            detected_user = args[0]
+            detected_user_id = args[0]
 
-            print(detected_user)
+            # Update Configuration
+            print("Successful config change: ", self.config_handler.updateConfiguration(detected_user_id))
+            print(detected_user_id)
 
             self.trigger_refresh()
 
