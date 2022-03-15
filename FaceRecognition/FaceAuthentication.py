@@ -161,7 +161,6 @@ class FaceAuthentication:
                 embedding = self.net.calculate_embedding(face)
                 # insert into users database
                 self.users.append((name, embedding))
-                print("Added user:", self.users)
 
             # persist face embeddings in pickle file
             if not self.benchmark_mode:
@@ -195,7 +194,6 @@ class FaceAuthentication:
         face_location = self.detect_biggest_face(image)
 
         if face_location is not None:
-            print("match face", self.users)
 
             # when no users are registered, don´t calculate the embedding for a face
             if len(self.users) == 0:
@@ -304,7 +302,6 @@ class FaceAuthentication:
                         output.no_faces()
 
                     if face_location is not None:
-                        print("face located")
                         face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
 
                         # draw rectangles for faces
