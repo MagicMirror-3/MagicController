@@ -6,10 +6,11 @@ class MirrorFaceOutput:
 
     """
 
-    def __init__(self):
+    def __init__(self, mediator):
         self.timeout = 5
         self.current_identified_user = None
         self.timer = None
+        self.mediator = mediator
 
     def face_detected(self, detected_user):
         """
@@ -26,6 +27,7 @@ class MirrorFaceOutput:
         if detected_user != self.current_identified_user:
             print('#' * 50)
             print(f"Change Layout to: {detected_user}")
+            self.mediator.notify(self, detected_user)
             print('#' * 50)
 
             # set new detected user
@@ -56,6 +58,7 @@ class MirrorFaceOutput:
         # Timer has passed
         print('#' * 50)
         print(f"Face from {user} no longer detected: Change Layout back to standard")
+        self.mediator.notify(self, None)
         print('#' * 50)
 
         self.current_identified_user = None

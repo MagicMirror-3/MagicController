@@ -5,6 +5,7 @@ from abc import ABC
 from util import User
 from Communication import CommunicationHandler
 from FaceRecognition import FaceAuthentication
+from FaceRecognition import MirrorFaceOutput
 
 
 class Mediator(ABC):
@@ -21,7 +22,7 @@ class BaseComponent:
 class MagicController(Mediator):
     def __init__(self):
         self.communication_handler = CommunicationHandler(self)
-        self.face_authentication = FaceAuthentication(self)
+        self.face_authentication = FaceAuthentication(benchmark_mode=True, lite=True, resolution=(640, 480), mediator=self)
 
     '''
         self._currentUser = User()
@@ -60,18 +61,25 @@ class MagicController(Mediator):
     '''
 
     def notify(self, sender: object, *args) -> None:
-        if type(sender) == CommunicationHandler.CreateUser:
+        # communicationhandler sends request to register a user
+        if isinstance(sender, CommunicationHandler.CreateUser):
             callback = args[0]
             user_id = args[1]
             images = args[2]
 
-            # Call FaceAuthentication
+            # Call FaceAuthentication to register faces
             success = self.face_authentication.register_faces(user_id, images, min_number_faces=1, mode='fast')
 
             # call callback, to send the response to the http server.
             callback(success)
-        if type(sender) == FaceAuthentication:
-            pass
+
+        # Face Recognition detected a face
+        if isinstance(sender, MirrorFaceOutput):
+            detected_user = args[0]
+
+            print(detected_user)
+
+            self.trigger_refresh()
 
     def trigger_refresh(self):
         print("Mirror Refresh")
