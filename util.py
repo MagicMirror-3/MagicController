@@ -16,11 +16,11 @@ class User:
 
         Args:
             name (str): The name of the user
-            identifier (str): A unique identifier of the user. This is needed in case there are multiple users with the
+            identifier (int): A unique identifier of the user. This is needed in case there are multiple users with the
                 same name
         """
 
-        self._isDefaultUser = name is None
+        self._isDefaultUser = name is None or identifier < 0
 
         self._name = name
         self._identifier = identifier
@@ -45,12 +45,12 @@ class User:
 
         return self._name
 
-    def getIdentifier(self) -> str:
+    def getIdentifier(self) -> int:
         """
         Returns the unique identifier of this user.
 
         Returns:
-            str: the identifier of the user
+            int: the identifier of the user
         """
 
         return self._identifier
@@ -61,12 +61,16 @@ class CONSTANTS:
     A class containing useful constant variables.
     """
 
-    MAGIC_MIRROR_DIR = "."  # TODO: determine reliably
+    # The path to the directory of the magic mirror
+    MAGIC_MIRROR_DIR = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "MagicMirror")))
 
     # ---------- [ConfigurationHandler] ---------- #
     CONFIG_PATH = os.path.join(MAGIC_MIRROR_DIR, "config")
     CONFIG_FILE = "config.js"
-    DEFAULT_CONFIG = "default_config.js"
+    FULL_CONFIG_PATH = os.path.join(CONFIG_PATH, CONFIG_FILE)
+
+    TEMPLATE_CONFIG = "template_config.js"
+    TEMPLATE_JSON = "template_config.json"
 
 
 def get_image_from_base64(image_string):
