@@ -6,4 +6,3 @@ imutils
 tensorflow
 falcon
 requests
-socket

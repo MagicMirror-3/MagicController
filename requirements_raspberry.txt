@@ -1,3 +1,2 @@
 falcon
 requests
-socket
