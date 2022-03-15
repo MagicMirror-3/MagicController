@@ -84,3 +84,12 @@ def get_image_from_base64(image_string):
     image_numpy_array = np.frombuffer(image_bytes, dtype=np.uint8)
     image = cv2.imdecode(image_numpy_array, flags=1)
     return cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+
+def get_ip():
+    import socket
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("8.8.8.8", 80))
+    ip = s.getsockname()[0]
+    s.close()
+    return ip

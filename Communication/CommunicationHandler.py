@@ -10,6 +10,7 @@ import requests
 
 from DatabaseAdapter import DatabaseAdapter
 from util import get_image_from_base64
+from util import get_ip
 
 
 class Route:
@@ -281,7 +282,7 @@ class CommunicationHandler:
         self.app.add_route('/getModules', getModules)
         self.app.add_route("/isMagicMirror", isMagicMirror)
 
-        with make_server('192.168.2.170', 5000, self.app) as httpd:
+        with make_server(get_ip(), 5000, self.app) as httpd:
             # Serve until process is killed
             try:
                 print('Serving on port 5000...')
