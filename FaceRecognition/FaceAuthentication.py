@@ -53,7 +53,8 @@ class FaceAuthentication:
             self.net.load_model(path_standard_face_net)
 
         self.active = True
-        self.haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        self.haar_cascade_matching = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        self.haar_cascade_registration = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
 
@@ -71,11 +72,11 @@ class FaceAuthentication:
         self.thread = Thread(target=self.run, name="FaceAuthentication")
         self.thread.start()
 
-    def get_face_locations(self, image):
+    def get_face_locations(self, image, haar_classifier):
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
         # extract faces with haar classifier
-        face_locations = self.haar_cascade.detectMultiScale(
+        face_locations = haar_classifier.detectMultiScale(
             image_gray,
             scaleFactor=1.1,
             minNeighbors=5,
@@ -93,7 +94,7 @@ class FaceAuthentication:
 
         """
 
-        face_locations = self.get_face_locations(image)
+        face_locations = self.get_face_locations(image, self.haar_cascade_matching)
 
         if len(face_locations) > 0:
 
@@ -136,7 +137,7 @@ class FaceAuthentication:
         # An image is usable, if exactly one face is detected
         for image in images_rgb:
             if FAST:
-                locations_in_img = self.get_face_locations(image)
+                locations_in_img = self.get_face_locations(image, self.haar_cascade_registration)
             else:
                 locations_in_img = self.extract_faces_hog(image)
 
