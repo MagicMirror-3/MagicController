@@ -18,6 +18,8 @@ ENV READTHEDOCS True
 
 RUN pip install --no-cache-dir "picamera[array]"
 
+RUN pip install --no-cache-dir falcon request
+
 # install nodejs and magicMirror
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
 RUN apt install -y nodejs
@@ -35,7 +37,7 @@ WORKDIR /
 RUN mkdir MagicController
 COPY . /MagicController
 WORKDIR /MagicController
-RUN pip3 install -r requirements_raspberry.txt
+#RUN pip3 install -r requirements_raspberry.txt
 
 RUN chmod a+x entrypoint.sh
 WORKDIR /
