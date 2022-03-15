@@ -26,7 +26,7 @@ WORKDIR MagicMirror
 RUN npm install --only=prod --omit=dev
 
 # install magicModule
-RUN cd modules
+WORKDIR MagicMirror/modules
 RUN git clone https://github.com/n1klasD/MagicModule
 
 WORKDIR /
