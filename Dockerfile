@@ -19,10 +19,10 @@ ENV READTHEDOCS True
 RUN pip install --no-cache-dir "picamera[array]"
 
 # install nodejs and magicMirror
-RUN curl -sL https://deb.nodesource.com/setup_16.x
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
 RUN apt install -y nodejs
 RUN git clone https://github.com/MichMich/MagicMirror
-RUN cd MagicMirror
+WORKDIR MagicMirror
 RUN npm install --only=prod --omit=dev
 
 # install magicModule
