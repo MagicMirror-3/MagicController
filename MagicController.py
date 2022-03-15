@@ -24,7 +24,6 @@ class MagicController(Mediator):
     def __init__(self):
         self.communication_handler = CommunicationHandler(self)
         self.face_authentication = FaceAuthentication(benchmark_mode=True, lite=True, resolution=(640, 480), mediator=self)
-        self.config_handler = ConfigurationHandler()
 
     '''
         self._currentUser = User()
@@ -79,9 +78,10 @@ class MagicController(Mediator):
         if isinstance(sender, MirrorFaceOutput):
             detected_user_id = args[0]
 
-            # Update Configuration
-            print("Successful config change: ", self.config_handler.updateConfiguration(detected_user_id))
-            print(detected_user_id)
+            if detected_user_id is None:
+                ConfigurationHandler.updateConfiguration(0)
+            else:
+                ConfigurationHandler.updateConfiguration(detected_user_id)
 
             self.trigger_refresh()
 
