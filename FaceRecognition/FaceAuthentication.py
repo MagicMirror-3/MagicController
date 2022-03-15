@@ -349,6 +349,11 @@ def main():
     path_craig3 = os.path.join(dirname, "images/craig3.jpg")
     path_craig4 = os.path.join(dirname, "images/craig4.jpg")
 
+    path_simon1 = os.path.join(dirname, "images/simon1.jpg")
+    path_simon2 = os.path.join(dirname, "images/simon2.jpg")
+    path_simon3 = os.path.join(dirname, "images/simon3.jpg")
+    path_simon4 = os.path.join(dirname, "images/simon4.jpg")
+
     niklas_imgs = [
         cv.imread(path_niklas1),
         cv.imread(path_niklas2),
@@ -364,8 +369,16 @@ def main():
 
     ]
 
+    simon_imgs = [
+        cv.imread(path_simon1),
+        cv.imread(path_simon2),
+        cv.imread(path_simon3),
+        cv.imread(path_simon4),
+    ]
+
     print(auth.register_faces("Niklas", niklas_imgs, 1))
     print(auth.register_faces("Craig", craig_imgs, 1))
+    print(auth.register_faces("Strauss", simon_imgs, 1))
 
 
 if __name__ == "__main__":
