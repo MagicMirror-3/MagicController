@@ -282,7 +282,7 @@ class CommunicationHandler:
         self.app.add_route('/getModules', getModules)
         self.app.add_route("/isMagicMirror", isMagicMirror)
 
-        with make_server("localhost", 5000, self.app) as httpd:
+        with make_server(get_ip(), 5000, self.app) as httpd:
             # Serve until process is killed
             try:
                 print('Serving on port 5000...')
