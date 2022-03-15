@@ -78,15 +78,11 @@ class MagicController(Mediator):
         if isinstance(sender, MirrorFaceOutput):
             detected_user_id = args[0]
 
-            if detected_user_id is None:
-                ConfigurationHandler.updateConfiguration(0)
+            if ConfigurationHandler.updateConfiguration(0 if detected_user_id is None else detected_user_id):
+                # refresh the mirror layout
+                self.communication_handler.refresh_layout()
             else:
-                ConfigurationHandler.updateConfiguration(detected_user_id)
-
-            self.trigger_refresh()
-
-    def trigger_refresh(self):
-        print("Mirror Refresh")
+                print("Failed to update the configuration.")
 
 
 def main():

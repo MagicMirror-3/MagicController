@@ -6,8 +6,9 @@ from threading import Thread, Event
 from wsgiref.simple_server import make_server
 
 import falcon
+import requests
+
 from DatabaseAdapter import DatabaseAdapter
-from FaceRecognition import FaceAuthentication
 from util import get_image_from_base64
 
 
@@ -27,6 +28,10 @@ class CommunicationHandler:
 
         self.thread = Thread(target=self.run, name="CommunicationHandler")
         self.thread.start()
+
+    @staticmethod
+    def refresh_layout():
+        print("response", requests.request(method="post", url="localhost:8080/refresh"))
 
     class CreateUser(Route):
         def __init__(self, db, mediator):
