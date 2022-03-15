@@ -39,7 +39,7 @@ RUN pip3 install -r requirements_raspberry.txt
 
 WORKDIR /
 
-CMD ["./entrypoint.sh"]
+CMD ["MagicController/entrypoint.sh"]
 
 # start magicMirrorpi
 # start start Controller
