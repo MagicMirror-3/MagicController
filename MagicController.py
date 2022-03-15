@@ -76,6 +76,7 @@ class MagicController(Mediator):
 
         # Face Recognition detected a face
         if isinstance(sender, MirrorFaceOutput):
+            print("call notify: face detected")
             detected_user_id = args[0]
 
             if ConfigurationHandler.updateConfiguration(0 if detected_user_id is None else detected_user_id):
