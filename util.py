@@ -61,16 +61,19 @@ class CONSTANTS:
     A class containing useful constant variables.
     """
 
+    # The absolute base path for this folder
+    BASE_PATH = os.path.abspath(os.path.dirname(__file__))
+
     # The path to the directory of the magic mirror
-    MAGIC_MIRROR_DIR = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "MagicMirror")))
+    MAGIC_MIRROR_DIR = os.path.normpath(os.path.join(BASE_PATH, "..", "MagicMirror"))
 
     # ---------- [ConfigurationHandler] ---------- #
     CONFIG_PATH = os.path.join(MAGIC_MIRROR_DIR, "config")
     CONFIG_FILE = "config.js"
     FULL_CONFIG_PATH = os.path.join(CONFIG_PATH, CONFIG_FILE)
 
-    TEMPLATE_CONFIG = "template_config.js"
-    TEMPLATE_JSON = "template_config.json"
+    TEMPLATE_CONFIG = os.path.join(BASE_PATH, "Configuration", "template_config.js")
+    TEMPLATE_JSON = os.path.join(BASE_PATH, "Configuration", "template_config.json")
 
 
 def get_image_from_base64(image_string):
