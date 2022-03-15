@@ -29,12 +29,15 @@ RUN npm install --only=prod --omit=dev
 RUN cd modules
 RUN git clone https://github.com/n1klasD/MagicModule
 
-RUN cd /
+WORKDIR /
 
 # install MagicController
-RUN git clone https://github.com/n1klasD/MagicController
-RUN cd MagicController
+RUN mkdir MagicController
+COPY . /MagicController
+WORKDIR MagicController
 RUN pip3 install -r requirements.txt
+
+WORKDIR /
 
 # start magicMirrorpi
 # start start Controller
