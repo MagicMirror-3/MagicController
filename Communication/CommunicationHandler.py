@@ -1,5 +1,8 @@
 import json
-from threading import Thread
+import functools
+import os
+import threading
+from threading import Thread, Event
 from wsgiref.simple_server import make_server
 
 import falcon
@@ -14,20 +17,28 @@ class Route:
 
 
 class CommunicationHandler:
-    def __init__(self):
+    def __init__(self, mediator):
         # database connection
         super().__init__()
 
         self.db = None
         self.app = None
+        self.mediator = mediator
 
         self.thread = Thread(target=self.run, name="CommunicationHandler")
         self.thread.start()
 
     class CreateUser(Route):
-        def __init__(self, db):
+        def __init__(self, db, mediator):
             super().__init__(db)
-            self.face_authentication = FaceAuthentication()
+            # self.face_authentication = FaceAuthentication()
+            self.registration_successful = None
+            self.mediator = mediator
+
+        def set_registration_successful(self, event, success):
+            print("call reg_successful")
+            self.registration_successful = success
+            event.set()
 
         def on_post(self, req, resp):
             """
@@ -53,8 +64,17 @@ class CommunicationHandler:
             # get the id, the user will be created with
             user_id = self.db.get_next_user_id()
 
-            # Call face authentication to register the users face
-            if self.face_authentication.register_faces(user_id, images, min_number_faces=1, mode='fast'):
+            # async wait for response
+            event = threading.Event()
+            callback_function = lambda success: self.set_registration_successful(event, success)
+
+            # notify with callback function
+            self.mediator.notify(self, callback_function, user_id, images)
+            # wait, until the event is set. This happens, when the
+            event.wait()
+            
+            # When registration was successful, add the user to the database
+            if self.registration_successful:
                 # When face_authentication returns true, the user was created.
                 resp.status = falcon.HTTP_201
                 self.db.insert_user(data["firstname"], data["lastname"], data["password"], data["current_layout"])
@@ -231,10 +251,10 @@ class CommunicationHandler:
             resp.status = falcon.HTTP_200
 
     def run(self):
-        self.db = DatabaseAdapter("../MagicMirrorDB.db")
+        self.db = DatabaseAdapter(os.path.abspath("MagicMirrorDB.db"))
 
         # Resources are represented by long-lived class instances
-        createUser = self.CreateUser(self.db)
+        createUser = self.CreateUser(self.db, self.mediator)
         getUsers = self.GetUsers(self.db)
         updateUser = self.UpdateUser(self.db)
         getLayout = self.GetLayout(self.db)
@@ -265,7 +285,3 @@ class CommunicationHandler:
                 print("Server shutdown.")
             finally:
                 self.db.close()
-
-
-if __name__ == '__main__':
-    handler = CommunicationHandler()
