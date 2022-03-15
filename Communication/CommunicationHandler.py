@@ -32,7 +32,7 @@ class CommunicationHandler:
 
     @staticmethod
     def refresh_layout():
-        print("response", requests.request(method="post", url="localhost:8080/refresh"))
+        print("response", requests.request(method="post", url="http://localhost:8080/refresh"))
 
     class CreateUser(Route):
         def __init__(self, db, mediator):
