@@ -10,6 +10,7 @@ loading: https://stackoverflow.com/questions/51278213/what-is-the-use-of-a-pb-fi
 
 load frozen graph: https://leimao.github.io/blog/Save-Load-Inference-From-TF2-Frozen-Graph/
 """
+import platform
 
 import numpy as np
 import os
@@ -18,7 +19,9 @@ import dlib
 
 from .MobileFaceNet import MobileFaceNet, import_tensorflow
 
-tf = import_tensorflow()
+IS_RASPBERRY_PI = platform.machine() == "armv7l"
+if not IS_RASPBERRY_PI:
+    tf = import_tensorflow()
 
 
 class MobileFaceNetStandard(MobileFaceNet):
