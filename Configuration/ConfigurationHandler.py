@@ -10,10 +10,8 @@ class ConfigurationHandler:
     A class handling the switching and saving of config files to enable multiple layouts for the magic mirror.
     """
 
-    def __init__(self):
-        self._database = DatabaseAdapter("../MagicMirrorDB.db")
-
-    def updateConfiguration(self, newUser: User) -> bool:
+    @staticmethod
+    def updateConfiguration(newUser: User) -> bool:
         """
         Updates the configuration file.
 
@@ -25,6 +23,9 @@ class ConfigurationHandler:
         """
 
         try:
+            # Create the database adapter here to prevent sqlite3 thread error
+            database = DatabaseAdapter("../MagicMirrorDB.db")
+
             # Create a string with the contents of the template config
             configFile = FileHelper.readFile(CONSTANTS.TEMPLATE_CONFIG)
 
@@ -32,7 +33,10 @@ class ConfigurationHandler:
             try:
                 if newUser.isRealPerson():
                     # Get the layout of the user
-                    layout = json.loads(self._database.get_layout_of_user(newUser.getIdentifier()))
+                    layout = json.loads(database.get_layout_of_user(newUser.getIdentifier()))
+
+                    # Close the connection
+                    database.close()
                 else:
                     print("Handle default user layout")
             except Exception as e:
