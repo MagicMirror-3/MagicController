@@ -19,9 +19,14 @@ class Route:
 
 
 class CommunicationHandler:
-    def __init__(self, mediator):
+    def __init__(self, mediator, host):
         # database connection
         super().__init__()
+
+        if host is not None:
+            self.host = host
+        else:
+            self.host = get_ip()
 
         self.db = None
         self.app = None
@@ -282,7 +287,7 @@ class CommunicationHandler:
         self.app.add_route('/getModules', getModules)
         self.app.add_route("/isMagicMirror", isMagicMirror)
 
-        with make_server(get_ip(), 5000, self.app) as httpd:
+        with make_server(self.host, 5000, self.app) as httpd:
             # Serve until process is killed
             try:
                 print('Serving on port 5000...')
@@ -294,4 +299,4 @@ class CommunicationHandler:
 
 
 if __name__ == '__main__':
-    CommunicationHandler(None)
+    CommunicationHandler(None, get_ip())

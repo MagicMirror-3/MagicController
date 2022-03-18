@@ -1,3 +1,4 @@
+import sys
 import time
 from abc import ABC
 
@@ -21,8 +22,8 @@ class BaseComponent:
 
 
 class MagicController(Mediator):
-    def __init__(self):
-        self.communication_handler = CommunicationHandler(self)
+    def __init__(self, host):
+        self.communication_handler = CommunicationHandler(self, host)
         self.face_authentication = FaceAuthentication(benchmark_mode=True, lite=True, resolution=(640, 480), mediator=self)
 
         # init with the base config, which is user 0
@@ -90,7 +91,11 @@ class MagicController(Mediator):
 
 
 def main():
-    MagicController()
+    try:
+        host = sys.argv[1]
+    except IndexError:
+        host = None
+    MagicController(host)
 
 
 if __name__ == '__main__':
