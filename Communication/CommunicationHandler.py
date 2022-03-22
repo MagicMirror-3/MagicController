@@ -181,7 +181,7 @@ class CommunicationHandler:
             resp.status = falcon.HTTP_200
 
     class DeleteUser(Route):
-        def __init__(self, mediator, db):
+        def __init__(self, db, mediator):
             super().__init__(db)
             self.mediator = mediator
 
@@ -281,7 +281,7 @@ class CommunicationHandler:
         updateUser = self.UpdateUser(self.db)
         getLayout = self.GetLayout(self.db)
         setLayout = self.SetLayout(self.db)
-        deleteUser = self.DeleteUser(self.db)
+        deleteUser = self.DeleteUser(self.db, self.mediator)
         getModules = self.GetModules(self.db)
         isMagicMirror = self.IsMagicMirror()
 
