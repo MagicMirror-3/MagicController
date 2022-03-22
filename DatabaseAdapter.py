@@ -7,7 +7,7 @@ class DatabaseAdapter:
     def __init__(self):
         self.__db = sqlite3.connect(CONSTANTS.DATABASE_PATH)
 
-    def insert_user(self, firstname, lastname, password, current_layout):
+    def insert_user(self, firstname, lastname, password):
         """
 
         :param firstname: firstname
@@ -17,8 +17,12 @@ class DatabaseAdapter:
         :return: None
         """
 
-        sql_query = "INSERT INTO USERS VALUES (null,?,?,?,?)"
+        # insert default layout
+        sql_query = "SELECT current_layout FROM USERS WHERE user_id==0"
+        cursor = self.__db.execute(sql_query)
+        current_layout = cursor.fetchone()[0]
 
+        sql_query = "INSERT INTO USERS VALUES (null,?,?,?,?)"
         self.__db.execute(sql_query, (firstname, lastname, password, current_layout))
         self.__db.commit()
 

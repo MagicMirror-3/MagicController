@@ -3,6 +3,8 @@ import time
 from abc import ABC
 
 # from Configuration import ConfigurationHandler
+import cv2
+
 from util import User
 from Communication import CommunicationHandler
 from FaceRecognition import FaceAuthentication
@@ -66,14 +68,14 @@ class MagicController(Mediator):
     '''
 
     def notify(self, sender: object, *args) -> None:
-        # communicationhandler sends request to register a user
+        # communication handler sends request to register a user
         if isinstance(sender, CommunicationHandler.CreateUser):
             callback = args[0]
             user_id = args[1]
             images = args[2]
 
             # Call FaceAuthentication to register faces
-            success = self.face_authentication.register_faces(1, images, min_number_faces=1, mode='fast')
+            success = self.face_authentication.register_faces(user_id, images, min_number_faces=1, mode='slow')
 
             # call callback, to send the response to the http server.
             callback(success)

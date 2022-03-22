@@ -37,7 +37,10 @@ class CommunicationHandler:
 
     @staticmethod
     def refresh_layout():
-        print("response", requests.request(method="post", url="http://localhost:8080/refresh"))
+        try:
+            print("response", requests.request(method="post", url="http://localhost:8080/refresh"))
+        except requests.exceptions.ConnectionError:
+            print("Could not refresh the layout")
 
     class CreateUser(Route):
         def __init__(self, db, mediator):
@@ -70,7 +73,10 @@ class CommunicationHandler:
 
             """
             data = req.get_media()
-            images = [get_image_from_base64(base64_string) for base64_string in data["images"]]
+            images = data["images"][1:-1].split(",")
+            #with open("images.txt", "w") as f:
+            #    f.write(data["images"])
+            images = [get_image_from_base64(base64_string) for base64_string in images]
 
             # get the id, the user will be created with
             user_id = self.db.get_next_user_id()
@@ -83,12 +89,12 @@ class CommunicationHandler:
             self.mediator.notify(self, callback_function, user_id, images)
             # wait, until the event is set. This happens, when the
             event.wait()
-            
+
             # When registration was successful, add the user to the database
             if self.registration_successful:
                 # When face_authentication returns true, the user was created.
                 resp.status = falcon.HTTP_201
-                self.db.insert_user(data["firstname"], data["lastname"], data["password"], data["current_layout"])
+                self.db.insert_user(data["firstname"], data["lastname"], data["password"])
             else:
                 # When it returns false, the user was not created, because the request did not contain good images
                 resp.status = falcon.HTTP_400
