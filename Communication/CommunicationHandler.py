@@ -125,7 +125,6 @@ class CommunicationHandler:
                 "user_id": INTEGER
                 "firstname": String,
                 "lastname": String,
-                "new_password": String,
             }
 
             """
@@ -134,8 +133,7 @@ class CommunicationHandler:
 
             self.db.update_user(request_data['user_id'],
                                 request_data['firstname'],
-                                request_data['lastname'],
-                                request_data['new_password'])
+                                request_data['lastname'])
 
             resp.status = falcon.HTTP_201
 
