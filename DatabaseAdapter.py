@@ -39,7 +39,7 @@ class DatabaseAdapter:
         cursor = self.__db.execute(sql_query)
         return cursor.fetchall()
 
-    def update_user(self, user_id, new_firstname, new_lastname, new_password):
+    def update_user(self, user_id, new_firstname, new_lastname):
         """
 
         Update a user by his user_id.
@@ -47,14 +47,12 @@ class DatabaseAdapter:
         :param user_id: user_id of user to update
         :param new_firstname: new firstname
         :param new_lastname: new lastname
-        :param new_password: new password
         :return: None
         """
 
-        sql_query = "UPDATE Users SET firstname=?, lastname=?, password=? WHERE user_id==?"
+        sql_query = "UPDATE Users SET firstname=?, lastname=? WHERE user_id==?"
         self.__db.execute(sql_query, (new_firstname,
                                       new_lastname,
-                                      new_password,
                                       user_id))
         self.__db.commit()
 
