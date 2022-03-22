@@ -91,7 +91,7 @@ class MagicController(Mediator):
             else:
                 print("Failed to update the configuration.")
         if isinstance(sender, CommunicationHandler.DeleteUser):
-            user_id = args[1]
+            user_id = args[0]
 
             self.face_authentication.delete_user(user_id)
 
