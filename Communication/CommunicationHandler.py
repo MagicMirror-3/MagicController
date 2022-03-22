@@ -1,6 +1,4 @@
 import json
-import functools
-import os
 import threading
 from threading import Thread, Event
 from wsgiref.simple_server import make_server
@@ -37,10 +35,13 @@ class CommunicationHandler:
 
     @staticmethod
     def refresh_layout():
-        try:
-            print("response", requests.request(method="post", url="http://localhost:8080/refresh"))
-        except requests.exceptions.ConnectionError:
-            print("Could not refresh the layout")
+        def request_refresh():
+            try:
+                requests.request(method="post", url="http://localhost:8080/refresh")
+            except requests.exceptions.ConnectionError:
+                print("Could not refresh the layout")
+
+        Thread(target=request_refresh).start()
 
     class CreateUser(Route):
         def __init__(self, db, mediator):
@@ -74,7 +75,7 @@ class CommunicationHandler:
             """
             data = req.get_media()
             images = data["images"][1:-1].split(",")
-            #with open("images.txt", "w") as f:
+            # with open("images.txt", "w") as f:
             #    f.write(data["images"])
             images = [get_image_from_base64(base64_string) for base64_string in images]
 
@@ -94,6 +95,7 @@ class CommunicationHandler:
             if self.registration_successful:
                 # When face_authentication returns true, the user was created.
                 resp.status = falcon.HTTP_201
+                resp.media = user_id
                 self.db.insert_user(data["firstname"], data["lastname"])
             else:
                 # When it returns false, the user was not created, because the request did not contain good images
@@ -179,6 +181,10 @@ class CommunicationHandler:
             resp.status = falcon.HTTP_200
 
     class DeleteUser(Route):
+        def __init__(self, mediator, db):
+            super().__init__(db)
+            self.mediator = mediator
+
         def on_post(self, req, resp):
             """
             Delete a user. Expects a JSON string of the following format:
@@ -195,6 +201,7 @@ class CommunicationHandler:
             self.db.delete_user(user_id)
 
             # delete user from face_authentication
+            self.mediator.notify(self, user_id)
 
             resp.status = falcon.HTTP_201
 

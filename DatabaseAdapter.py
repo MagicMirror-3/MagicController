@@ -88,7 +88,7 @@ class DatabaseAdapter:
         """
 
         sql_query = "SELECT current_layout FROM USERS WHERE user_id==?"
-        cursor = self.__db.execute(sql_query, str(user_id))
+        cursor = self.__db.execute(sql_query, (str(user_id),))
         layout = cursor.fetchone()
 
         if layout:

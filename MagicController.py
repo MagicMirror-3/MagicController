@@ -75,7 +75,7 @@ class MagicController(Mediator):
             images = args[2]
 
             # Call FaceAuthentication to register faces
-            success = self.face_authentication.register_faces(user_id, images, min_number_faces=1, mode='slow')
+            success = self.face_authentication.register_faces(user_id, images, min_number_faces=4, mode='slow')
 
             # call callback, to send the response to the http server.
             callback(success)
@@ -90,6 +90,12 @@ class MagicController(Mediator):
                 self.communication_handler.refresh_layout()
             else:
                 print("Failed to update the configuration.")
+        if isinstance(sender, CommunicationHandler.DeleteUser):
+            user_id = args[1]
+
+            self.face_authentication.delete_user(user_id)
+
+            print(f"Deleted user: {user_id}")
 
 
 def main():
