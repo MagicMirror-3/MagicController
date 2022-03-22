@@ -94,7 +94,7 @@ class CommunicationHandler:
             if self.registration_successful:
                 # When face_authentication returns true, the user was created.
                 resp.status = falcon.HTTP_201
-                self.db.insert_user(data["firstname"], data["lastname"], data["password"])
+                self.db.insert_user(data["firstname"], data["lastname"])
             else:
                 # When it returns false, the user was not created, because the request did not contain good images
                 resp.status = falcon.HTTP_400
