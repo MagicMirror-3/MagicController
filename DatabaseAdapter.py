@@ -8,13 +8,38 @@ class DatabaseAdapter:
     def __init__(self):
         self.__db = sqlite3.connect(CONSTANTS.DATABASE_PATH)
 
+    def setup_database(self):
+
+        # create the tables
+        configs = 'CREATE TABLE ModuleConfigurations (user_id INTEGER NOT NULL, module TEXT NOT NULL, configuration ' \
+                  'TEXT NOT NULL, PRIMARY KEY("user_id", "module")) '
+        modules = 'CREATE TABLE Modules (name TEXT NOT NULL UNIQUE, default_config TEXT, PRIMARY KEY(name))'
+        users = 'CREATE TABLE "Users" (user_id INTEGER not null primary key autoincrement unique, firstname TEXT not ' \
+                'null, lastname TEXT not null, current_layout TEXT not null) '
+
+        self.__db.execute(configs)
+        self.__db.execute(modules)
+        self.__db.execute(users)
+        self.__db.commit()
+
+        # default_layout
+        default_layout = [
+            {"module": "clock", "position": "top_right",
+             "config": {"location": "New York", "appid": "YOUR_OPENWEATHER_API_KEY"}},
+            {"module": "compliments", "position": "lower_third", "config": {}},
+            {"module": "clock", "position": "bottom_bar", "config": {}}
+        ]
+
+        # create default user
+        sql_query = "INSERT INTO USERS VALUES (0,?,?,?)"
+        self.__db.execute(sql_query, ("default", "default", json.dumps(default_layout)))
+        self.__db.commit()
+
     def insert_user(self, firstname, lastname):
         """
 
         :param firstname: firstname
         :param lastname: lastname
-        :param password: password
-        :param current_layout: Current layout (JSON format)
         :return: None
         """
 
@@ -113,8 +138,9 @@ class DatabaseAdapter:
         # update the user specific configurations in the ModuleConfigurations Table
         modules = json.loads(layout)
         for module in modules:
-            config = json.dumps(module['config'])
-            self.update_module_config(user_id, module['module'], config)
+            if module['config'] != {}:
+                config = json.dumps(module['config'])
+                self.update_module_config(user_id, module['module'], config)
 
     def update_module_config(self, user_id, module_name, config):
         """
