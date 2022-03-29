@@ -230,6 +230,21 @@ class CommunicationHandler:
 
             resp.status = falcon.HTTP_201
 
+    class UpdateModuleConfiguration(Route):
+        def on_post(self, req, resp):
+            """
+            Update the user specific configuration of a module.
+            """
+
+            request_data = req.get_media()
+            user_id = request_data['user_id']
+            module_name = request_data['module']
+            config = request_data["configuration"]
+
+            self.db.update_module_config(user_id, module_name, config)
+
+            resp.status = falcon.HTTP_201
+
     class GetModules(Route):
         def on_get(self, req, resp):
             """
@@ -283,6 +298,7 @@ class CommunicationHandler:
         setLayout = self.SetLayout(self.db)
         deleteUser = self.DeleteUser(self.db, self.mediator)
         getModules = self.GetModules(self.db)
+        updateModuleConfiguration = self.UpdateModuleConfiguration(self.db)
         isMagicMirror = self.IsMagicMirror()
 
         # falcon.App instances are callable WSGI apps
@@ -296,6 +312,7 @@ class CommunicationHandler:
         self.app.add_route('/setLayout', setLayout)
         self.app.add_route('/deleteUser', deleteUser)
         self.app.add_route('/getModules', getModules)
+        self.app.add_route('/updateModuleConfiguration', updateModuleConfiguration)
         self.app.add_route("/isMagicMirror", isMagicMirror)
 
         with make_server(self.host, 5000, self.app) as httpd:

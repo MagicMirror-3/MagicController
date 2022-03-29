@@ -109,6 +109,20 @@ class DatabaseAdapter:
         self.__db.execute(sql_query, (layout, user_id))
         self.__db.commit()
 
+    def update_module_config(self, user_id, module_name, config):
+        """
+        Update the user specific configuration of a module.
+
+        :param user_id: user_id
+        :param module_name: name of the module
+        :param config: config JSON of the module
+        :return: None
+        """
+
+        sql_query = "UPDATE ModuleConfigurations SET configuration=? WHERE user_id==? and module==?"
+        self.__db.execute(sql_query, (config, user_id, module_name))
+        self.__db.commit()
+
     def get_module_configs(self, user_id):
         """
         Return the available modules and their configurations from the DB.
