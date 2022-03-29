@@ -239,9 +239,14 @@ class CommunicationHandler:
             request_data = req.get_media()
             user_id = request_data['user_id']
             module_name = request_data['module']
-            config = request_data["configuration"]
 
-            self.db.update_module_config(user_id, module_name, json.dumps(config))
+            config = request_data["configuration"]
+            if isinstance(config, dict):
+                config = json.dumps(config)
+            elif not isinstance(config, str):
+                raise Exception
+
+            self.db.update_module_config(user_id, module_name, config)
 
             resp.status = falcon.HTTP_201
 
