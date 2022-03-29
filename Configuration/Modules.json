@@ -1,0 +1,86 @@
+{
+    "alert": {
+        "effect": "slide",
+        "alert_effect": "jelly",
+        "display_time": 3500,
+        "position": "center",
+        "welcome_message": "Hello"
+    },
+    "clock": {
+        "timezone": "Europe/Berlin",
+        "clockBold": false,
+        "displayType": "digital",
+        "showTime": true,
+        "showDate": true,
+        "showWeek": false
+    },
+    "compliments": {
+        "updateInterval": 30000,
+        "fadeSpeed": 4000
+    },
+    "newsfeed": {
+        "feeds": [
+            {
+                "title": "New York Times",
+                "url": "https://www.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+            },
+            {
+                "title": "BBC",
+                "url": "https://feeds.bbci.co.uk/news/video_and_audio/news_front_page/rss.xml?edition=uk"
+            }
+        ]
+    },
+    "calendar": {
+        "maximumEntries": 10,
+        "showLocation": false,
+        "dateFormat": "DD. MMM",
+        "showEnd": false,
+        "fullDayEventDateFormat": "DD. MMM",
+        "hidePrivate": false,
+        "hideOngoing": false,
+        "calendars": [
+            {
+                "url": "",
+                "symbol": "calendar",
+                "auth": {
+                    "user": "username",
+                    "pass": "superstrongpassword",
+                    "method": "basic"
+                }
+            }
+        ]
+    },
+    "weather": {
+        "type": "forecast",
+        "colored": false,
+        "showPrecipitationAmount": true,
+        "maxNumberOfDays": 3,
+        "ignoreToday": false,
+        "location": "Stuttgart,Germany",
+        "apiKey": "db9b3a7b256487b81b2b2fcceb424c19"
+    },
+    "MMM-AVStock": {
+        "apiKey": "VDI3XIRGZUQJ9UGJ",
+        "timeFormat": "DD. MMM HH:mm",
+        "symbols": [
+            "AAPL",
+            "BTCUSDT",
+            "TSLA"
+        ],
+        "alias": [
+            "Apple",
+            "Bitcoin",
+            "Tesla"
+        ],
+        "chartDays": 120,
+        "mode": "table",
+        "showChart": false,
+        "showVolume": false,
+        "chartInterval": "daily",
+        "decimals": 2,
+        "chartType": "candlestick",
+        "chatLineColor": "#eee",
+        "chatLabelColor": "#eee",
+        "coloredCandles": true
+    }
+}
