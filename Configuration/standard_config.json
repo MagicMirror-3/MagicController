@@ -1,6 +1,6 @@
 [
   {
-    "module": "updatenotification",
+    "module": "alert",
     "position": "top_bar"
   },
   {
