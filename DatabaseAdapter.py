@@ -1,3 +1,4 @@
+import json
 import sqlite3
 
 from util import CONSTANTS
@@ -98,7 +99,7 @@ class DatabaseAdapter:
 
     def set_layout_of_user(self, user_id, layout):
         """
-        Set the current layout of a user
+        Set the current layout of a user and save the user specific configurations
 
         :param layout: Layout in JSON format
         :param user_id: user_id
@@ -108,6 +109,12 @@ class DatabaseAdapter:
         sql_query = "UPDATE Users SET current_layout=? WHERE user_id==?"
         self.__db.execute(sql_query, (layout, user_id))
         self.__db.commit()
+
+        # update the user specific configurations in the ModuleConfigurations Table
+        modules = json.loads(layout)
+        for module in modules:
+            config = json.dumps(module['config'])
+            self.update_module_config(user_id, module['module'], config)
 
     def update_module_config(self, user_id, module_name, config):
         """
@@ -119,8 +126,9 @@ class DatabaseAdapter:
         :return: None
         """
 
-        sql_query = "UPDATE ModuleConfigurations SET configuration=? WHERE user_id==? and module==?"
-        self.__db.execute(sql_query, (config, user_id, module_name))
+        sql_query = "INSERT INTO ModuleConfigurations VALUES(?,?,?) ON CONFLICT(user_id, module) DO UPDATE SET " \
+                    "configuration=? "
+        self.__db.execute(sql_query, (user_id, module_name, config, config))
         self.__db.commit()
 
     def get_module_configs(self, user_id):
