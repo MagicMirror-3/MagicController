@@ -1,28 +1,59 @@
 [
   {
     "module": "alert",
-    "position": "top_bar"
+    "position": "top_bar",
+    "config": {
+        "effect": "slide",
+        "alert_effect": "jelly",
+        "display_time": 3500,
+        "position": "center",
+        "welcome_message": "Hello"
+    }
   },
   {
     "module": "clock",
-    "position": "top_left"
+    "position": "top_left",
+    "config": {
+        "timezone": "Europe/Berlin",
+        "clockBold": false,
+        "displayType": "digital",
+        "showTime": true,
+        "showDate": true,
+        "showWeek": false
+    }
   },
   {
     "module": "calendar",
     "header": "US Holidays",
     "position": "top_left",
     "config": {
+      "maximumEntries": 10,
+      "showLocation": false,
+      "dateFormat": "DD. MMM",
+      "showEnd": false,
+      "fullDayEventDateFormat": "DD. MMM",
+      "hidePrivate": false,
+      "hideOngoing": false,
       "calendars": [
         {
           "symbol": "calendar-check",
-          "url": "webcal://www.calendarlabs.com/ical-calendar/ics/76/US_Holidays.ics"
+          "url": "webcal://www.calendarlabs.com/ical-calendar/ics/76/US_Holidays.ics",
+          "auth": {
+            "user": "username",
+            "pass": "superstrongpassword",
+            "method": "basic"
+          }
         }
       ]
     }
   },
   {
     "module": "compliments",
-    "position": "lower_third"
+    "position": "lower_third",
+    "config": {
+        "updateInterval": 30000,
+        "fadeSpeed": 4000
+    }
   },
   {
     "module": "newsfeed",
