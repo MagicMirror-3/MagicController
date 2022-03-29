@@ -241,7 +241,7 @@ class CommunicationHandler:
             module_name = request_data['module']
             config = request_data["configuration"]
 
-            self.db.update_module_config(user_id, module_name, config)
+            self.db.update_module_config(user_id, module_name, json.dumps(config))
 
             resp.status = falcon.HTTP_201
 
