@@ -35,7 +35,7 @@ class DatabaseAdapter:
         :return: list[(int, string, string)]
         """
 
-        sql_query = "SELECT user_id, firstname, lastname FROM USERS"
+        sql_query = "SELECT user_id, firstname, lastname FROM USERS WHERE user_id > 0"
 
         cursor = self.__db.execute(sql_query)
         return cursor.fetchall()
