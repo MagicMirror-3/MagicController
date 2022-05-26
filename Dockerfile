@@ -45,8 +45,7 @@ WORKDIR /MagicController
 RUN chmod a+x entrypoint.sh
 WORKDIR /
 
-CMD ["./MagicController/entrypoint.sh"]
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+ENTRYPOINT ["./MagicController/entrypoint.sh"]
 
 # start magicMirror
 # start start Controller
