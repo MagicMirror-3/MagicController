@@ -23,7 +23,11 @@
 	"modules": [
 		{
 			"module": "MagicModule",
-			"position": "fullscreen_above"
+			"position": "fullscreen_above",
+			"config": {
+				"fadeInDuration": 1000,
+				"fadeOutDuration": 2500
+			}
 		}
 	],
 	"electronOptions": {
