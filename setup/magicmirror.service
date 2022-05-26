@@ -1,9 +1,10 @@
 [Unit]
 Description=Magic Mirror
-After=network.target
+After=network.target dockerd.service multi-user.target grafical.target
 StartLimitIntervalSec=0
 
 [Service]
+Environment="DISPLAY=:0"
 Type=simple
 Restart=always
 RestartSec=1
