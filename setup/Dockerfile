@@ -38,7 +38,7 @@ WORKDIR /
 
 # install MagicController
 RUN mkdir MagicController
-COPY . /MagicController
+COPY .. /MagicController
 WORKDIR /MagicController
 #RUN pip3 install -r requirements_raspberry.txt
 
