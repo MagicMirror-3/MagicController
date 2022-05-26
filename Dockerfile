@@ -31,6 +31,8 @@ RUN npm install --only=prod --omit=dev
 WORKDIR /MagicMirror/modules
 RUN git clone https://github.com/n1klasD/MagicModule
 RUN git clone https://github.com/lavolp3/MMM-AVStock
+WORKDIR /MagicMirror/modules/MMM-AVStock
+RUN npm install --only=prod --omit=dev
 
 WORKDIR /
 
