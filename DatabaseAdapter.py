@@ -44,7 +44,7 @@ class DatabaseAdapter:
         """
 
         # insert default layout
-        sql_query = "SELECT current_layout FROM USERS WHERE user_id==0"
+        sql_query = "SELECT current_layout FROM USERS WHERE user_id=0"
         cursor = self.__db.execute(sql_query)
         current_layout = cursor.fetchone()[0]
 
@@ -76,7 +76,7 @@ class DatabaseAdapter:
         :return: None
         """
 
-        sql_query = "UPDATE Users SET firstname=?, lastname=? WHERE user_id==?"
+        sql_query = "UPDATE Users SET firstname=?, lastname=? WHERE user_id=?"
         self.__db.execute(sql_query, (new_firstname,
                                       new_lastname,
                                       user_id))
@@ -101,7 +101,7 @@ class DatabaseAdapter:
         return the next user_id when a use is created.
         :return:
         """
-        sql_query = "SELECT MAX(user_id) FROM Users"
+        sql_query = "SELECT seq FROM sqlite_sequence WHERE name = 'Users'"
         cursor = self.__db.execute(sql_query)
         return cursor.fetchone()[0] + 1
 
@@ -113,7 +113,7 @@ class DatabaseAdapter:
         :return: None
         """
 
-        sql_query = "SELECT current_layout FROM USERS WHERE user_id==?"
+        sql_query = "SELECT current_layout FROM USERS WHERE user_id=?"
         cursor = self.__db.execute(sql_query, (str(user_id),))
         layout = cursor.fetchone()
 
@@ -131,7 +131,7 @@ class DatabaseAdapter:
         :return: None
         """
 
-        sql_query = "UPDATE Users SET current_layout=? WHERE user_id==?"
+        sql_query = "UPDATE Users SET current_layout=? WHERE user_id=?"
         self.__db.execute(sql_query, (layout, user_id))
         self.__db.commit()
 
