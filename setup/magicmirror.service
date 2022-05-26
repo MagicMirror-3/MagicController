@@ -1,14 +1,15 @@
 [Unit]
 Description=Magic Mirror
-After=network.target dockerd.service multi-user.target grafical.target
+After=network.target dockerd.service multi-user.target graphical.target
 StartLimitIntervalSec=0
 
 [Service]
 Environment="DISPLAY=:0"
+Environment="XAUTHORITY=/home/pi/.Xauthority"
 Type=simple
 Restart=always
 RestartSec=1
 ExecStart=/usr/bin/sh /home/pi/MagicController/setup/autostart.sh
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=multi-user.target graphical.target
