@@ -45,7 +45,7 @@ WORKDIR /MagicController
 RUN chmod a+x entrypoint.sh
 WORKDIR /
 
-ENTRYPOINT ["./MagicController/entrypoint.sh"]
+CMD ["nohup", "./MagicController/entrypoint.sh","2>&1", "&"]
 
 # start magicMirrorpi
 # start start Controller
