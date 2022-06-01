@@ -14,7 +14,7 @@ ENV READTHEDOCS True
 RUN pip install --no-cache-dir "picamera[array]"
 
 # install cmake
-RUN apt-get update && apt-get install cmake
+RUN apt-get update && apt-get install cmake -y
 
 # install python dependancies
 RUN pip install --no-cache-dir falcon requests dlib imutils
