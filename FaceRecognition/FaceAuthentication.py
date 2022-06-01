@@ -53,7 +53,9 @@ class FaceAuthentication:
             self.net.load_model(path_standard_face_net)
 
         self.active = True
-        self.haar_cascade_matching = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
+        haar_path = os.path.abspath('model/haarcascade_frontalface_default.xml')
+        self.haar_cascade_matching = cv.CascadeClassifier(haar_path)
+        self.haar_cascade_registration = cv.CascadeClassifier(haar_path)
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
 
@@ -333,51 +335,8 @@ def localize_faces(image, detector, sample=1):
 
 
 def main():
-    # register faces
-    auth = FaceAuthentication(benchmark_mode=True, lite=True)
 
-    dirname = os.path.dirname(__file__)
-
-    path_niklas1 = os.path.join(dirname, "images/niklas1.jpg")
-    path_niklas2 = os.path.join(dirname, "images/niklas2.jpg")
-    path_niklas3 = os.path.join(dirname, "images/niklas3.jpg")
-    path_niklas4 = os.path.join(dirname, "images/niklas4.jpg")
-
-    path_craig1 = os.path.join(dirname, "images/craig1.jpg")
-    path_craig2 = os.path.join(dirname, "images/craig2.jpg")
-    path_craig3 = os.path.join(dirname, "images/craig3.jpg")
-    path_craig4 = os.path.join(dirname, "images/craig4.jpg")
-
-    path_simon1 = os.path.join(dirname, "images/simon1.jpg")
-    path_simon2 = os.path.join(dirname, "images/simon2.jpg")
-    path_simon3 = os.path.join(dirname, "images/simon3.jpg")
-    path_simon4 = os.path.join(dirname, "images/simon4.jpg")
-
-    niklas_imgs = [
-        cv.imread(path_niklas1),
-        cv.imread(path_niklas2),
-        cv.imread(path_niklas3),
-        cv.imread(path_niklas4),
-    ]
-
-    craig_imgs = [
-        cv.imread(path_craig1),
-        cv.imread(path_craig2),
-        cv.imread(path_craig3),
-        cv.imread(path_craig4),
-
-    ]
-
-    simon_imgs = [
-        cv.imread(path_simon1),
-        cv.imread(path_simon2),
-        cv.imread(path_simon3),
-        cv.imread(path_simon4),
-    ]
-
-    print(auth.register_faces("Niklas", niklas_imgs, 1))
-    print(auth.register_faces("Craig", craig_imgs, 1))
-    print(auth.register_faces("Strauss", simon_imgs, 1))
+    print(os.path.abspath('model/haarcascade_frontalface_default.xml'))
 
 
 if __name__ == "__main__":
