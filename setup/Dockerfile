@@ -13,11 +13,10 @@ RUN pip3 install --no-cache-dir tflite-runtime>=2.7.0
 ENV READTHEDOCS True
 RUN pip install --no-cache-dir "picamera[array]"
 
-# install cmake
-RUN apt-get update && apt-get install cmake -y
-
 # install python dependancies
-RUN pip install --no-cache-dir falcon requests dlib imutils
+RUN pip install --no-cache-dir cmake
+RUN pip install --no-cache-dir dlib
+RUN pip install --no-cache-dir falcon requests imutils
 
 # install nodejs and magicMirror
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
