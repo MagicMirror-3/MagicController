@@ -42,6 +42,7 @@ class FaceAuthentication:
 
         dirname = os.path.dirname(__file__)
         path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
+        path_haar_cascade = os.path.join(dirname, "model/haarcascade_frontalface_default.xml")
 
         if IS_RASPBERRY_PI or lite:
             self.net = MobileFaceNetLite()
@@ -53,9 +54,8 @@ class FaceAuthentication:
             self.net.load_model(path_standard_face_net)
 
         self.active = True
-        haar_path = os.path.abspath('model/haarcascade_frontalface_default.xml')
-        self.haar_cascade_matching = cv.CascadeClassifier(haar_path)
-        self.haar_cascade_registration = cv.CascadeClassifier(haar_path)
+        self.haar_cascade_matching = cv.CascadeClassifier(path_haar_cascade)
+        self.haar_cascade_registration = cv.CascadeClassifier(path_haar_cascade)
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
 
