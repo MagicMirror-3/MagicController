@@ -40,10 +40,11 @@ WORKDIR /
 RUN mkdir MagicController
 # COPY . /MagicController
 
-WORKDIR /MagicController/setup
+COPY setup/entrypoint.sh /
+# WORKDIR /MagicController/setup
 RUN chmod a+x entrypoint.sh
 
 # execute starting script
-ENTRYPOINT ["/MagicController/setup/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 
