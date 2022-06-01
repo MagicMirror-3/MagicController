@@ -24,10 +24,11 @@ class FaceAuthentication:
 
     """
 
-    def __init__(self, benchmark_mode=False, lite=True, resolution=(640, 480), mediator=None):
+    def __init__(self, benchmark_mode=False, lite=True, threshold=0.8, resolution=(640, 480), mediator=None):
         # load face embeddings from file, if file exists and benchmark mode is turned off
 
         self.benchmark_mode = benchmark_mode
+        self.threshold = threshold
 
         if not self.benchmark_mode:
             try:
@@ -181,7 +182,7 @@ class FaceAuthentication:
     def location_tuple_to_dlib_rectangle(x, y, w, h):
         return dlib.rectangle(x, y, x + w, y + h)
 
-    def match_face(self, image, tolerance=0.65):
+    def match_face(self, image):
 
         """
 
@@ -212,7 +213,7 @@ class FaceAuthentication:
             for name, encoding in self.users:
                 distances.append(self.distance_euclid(unknown_embedding, encoding))
 
-            if min(distances) <= tolerance:
+            if min(distances) <= self.threshold:
                 return self.users[distances.index(min(distances))][0], min(distances), [face_location]
             else:
                 return "unknown", None, None
@@ -289,7 +290,7 @@ class FaceAuthentication:
 
                 if frame is not None:
                     start = time.time()
-                    match, distance, face_location = self.match_face(frame, tolerance=1)
+                    match, distance, face_location = self.match_face(frame)
                     end = time.time()
                     if match is not None and distance is not None:
                         print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
