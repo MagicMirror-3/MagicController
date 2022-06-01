@@ -1,12 +1,12 @@
 sudo apt update -y
 sudo apt upgrade -y
 cd /home/pi || exit
-git clone https://github.com/n1klasD/MagicController.git
+# git clone https://github.com/n1klasD/MagicController.git
 cd /home/pi/MagicController || exit
 
 # install docker
-sudo curl -s https://get.docker.com | bash
-sudo usermod -aG docker pi
+# sudo curl -s https://get.docker.com | bash
+# sudo usermod -aG docker pi
 
 # pull docker image
 docker pull 1646552/magic-controller:latest
