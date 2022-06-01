@@ -53,7 +53,7 @@ class FaceAuthentication:
             self.net.load_model(path_standard_face_net)
 
         self.active = True
-        self.haar_cascade_matching = cv.CascadeClassifier('haarcascade_frontalface_default.xml')
+        self.haar_cascade_matching = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
 
