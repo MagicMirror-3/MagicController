@@ -1,6 +1,6 @@
 FROM 1646552/opencv-python-pi4:latest
 
-RUN apt update && apt-get install curl gnupg ca-certificates git -y
+RUN apt-get update && apt-get install curl gnupg ca-certificates git -y
 
 # install tflite
 RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list
