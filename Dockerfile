@@ -38,9 +38,9 @@ RUN npm install --only=prod --omit=dev
 # install MagicController
 WORKDIR /
 RUN mkdir MagicController
-COPY . /MagicController
-WORKDIR /MagicController/setup
+# COPY . /MagicController
 
+WORKDIR /MagicController/setup
 RUN chmod a+x entrypoint.sh
 
 # execute starting script
