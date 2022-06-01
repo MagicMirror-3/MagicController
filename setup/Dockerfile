@@ -13,7 +13,7 @@ RUN pip3 install --no-cache-dir tflite-runtime>=2.7.0
 ENV READTHEDOCS True
 RUN pip install --no-cache-dir "picamera[array]"
 
-RUN apt-get install cmake
+RUN apt-get install cmake -y
 
 # install python dependancies
 RUN pip install --no-cache-dir wheel dlib
