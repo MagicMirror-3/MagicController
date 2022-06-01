@@ -1,4 +1,4 @@
-FROM 1646552/opencv-python-pi4:4.3.0
+FROM 1646552/opencv-python-pi4:latest
 
 RUN apt update && apt-get install curl gnupg ca-certificates git -y
 
@@ -32,7 +32,7 @@ RUN git clone https://github.com/lavolp3/MMM-AVStock
 WORKDIR /MagicMirror/modules/MMM-AVStock
 RUN npm install --only=prod --omit=dev
 
-# install MagicController via git
+# install MagicController
 WORKDIR /
 RUN mkdir MagicController
 COPY .. /MagicController
