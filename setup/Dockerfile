@@ -7,7 +7,7 @@ RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" |
 RUN curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
 RUN pip3 install --upgrade pip setuptools wheel
 RUN pip3 install --no-cache-dir tflite-runtime>=2.7.0
-RUN pip3 install --no-cache-dir tflite-support>=0.3.1
+# RUN pip3 install --no-cache-dir tflite-support>=0.3.1
 
 # install pycamera
 ENV READTHEDOCS True
