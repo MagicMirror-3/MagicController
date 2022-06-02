@@ -187,7 +187,6 @@ class FaceAuthentication:
         """
 
         :param image:
-        :param tolerance:
         :return:
         """
 
