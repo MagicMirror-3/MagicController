@@ -7,7 +7,7 @@ class MirrorFaceOutput:
     """
 
     def __init__(self, mediator):
-        self.timeout = 5
+        self.timeout = 10
         self.current_identified_user = None
         self.timer = None
         self.mediator = mediator
