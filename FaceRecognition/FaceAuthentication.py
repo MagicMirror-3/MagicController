@@ -13,6 +13,7 @@ import numpy as np
 from FaceRecognition.MobileFaceNetLite import MobileFaceNetLite
 from FaceRecognition.MobileFaceNetStandard import MobileFaceNetStandard
 from FaceRecognition.MirrorFaceOutput import MirrorFaceOutput
+from util import thresholded_knn
 
 IS_RASPBERRY_PI = platform.machine() == "armv7l"
 
@@ -186,6 +187,10 @@ class FaceAuthentication:
 
         """
 
+        Detect the biggest face in an image and normalize it, then calculate mobilefacenet
+        embedding and match it against collection of face embeddings.
+        Performs k-nearest neighbor with a threshold to match a face with saved embeddings.
+
         :param image:
         :return:
         """
@@ -200,24 +205,21 @@ class FaceAuthentication:
             if len(self.users) == 0:
                 return None, None, [face_location]
 
-            x, y, w, h = face_location
             dlib_rectangle = self.location_tuple_to_dlib_rectangle(*face_location)
 
             normalized_face = self.normalize_face(image, dlib_rectangle, size=112, padding=0.3)
 
-            # calculate embedding
+            # calculate embedding for new face
             unknown_embedding = self.net.calculate_embedding(normalized_face)
 
-            distances = []
-            for name, encoding in self.users:
-                distances.append(self.distance_euclid(unknown_embedding, encoding))
+            predicted_label = thresholded_knn(self.users, unknown_embedding, self.distance_euclid, self.threshold, k=4)
 
-            if min(distances) <= self.threshold:
-                return self.users[distances.index(min(distances))][0], min(distances), [face_location]
+            if predicted_label is not None:
+                return predicted_label, [face_location]
             else:
-                return "unknown", None, None
-        else:
-            return None, None, None
+                return "unknown", [face_location]
+
+        return None, None
 
     @staticmethod
     def distance_euclid(vector_1, vector_2):
@@ -289,12 +291,13 @@ class FaceAuthentication:
 
                 if frame is not None:
                     start = time.time()
-                    match, distance, face_location = self.match_face(frame)
+                    match, face_location = self.match_face(frame)
                     end = time.time()
-                    if match is not None and distance is not None:
-                        print(f"Identified {match}, Dist: {round(distance, 4)}, FPS: {1 / (end - start)}")
+                    if match is not None:
+                        print(f"Identified {match}, FPS: {1 / (end - start)}")
 
-                        output.face_detected(match)
+                        if match != "unknown":
+                            output.face_detected(match)
 
                     # OpenCV returns bounding box coordinates in (x, y, w, h) order
                     # but we need them in (top, right, bottom, left) order, so we
