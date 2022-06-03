@@ -36,8 +36,9 @@ class FaceAuthentication:
                 with open(r"user_embedding.p", "rb") as file:
                     user_backup = pickle.load(file)
                     self.users = user_backup
-                    print("Loaded user embeddings!")
+                    print(f"Loaded {len(self.users)} users")
             except FileNotFoundError:
+                print("Could not load user data.")
                 self.users = []
         else:
             self.users = []
