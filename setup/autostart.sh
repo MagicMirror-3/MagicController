@@ -1,4 +1,5 @@
 xrandr --output HDMI-1 --rotate left
+docker stop $(docker container ls -q) || echo "No containers already running"
 docker run -t \
   -d \
   --privileged=true \
