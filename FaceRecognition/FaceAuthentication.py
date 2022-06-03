@@ -21,8 +21,6 @@ IS_RASPBERRY_PI = platform.machine() == "armv7l"
 class FaceAuthentication:
     """
 
-    Optimization:
-
     """
 
     def __init__(self, benchmark_mode=False, lite=True, threshold=0.8, resolution=(640, 480), mediator=None):
@@ -31,9 +29,15 @@ class FaceAuthentication:
         self.benchmark_mode = benchmark_mode
         self.threshold = threshold
 
+        # create paths
+        dirname = os.path.dirname(__file__)
+        self.embedding_path = os.path.join(dirname, "user_embedding.p")
+        path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
+        path_haar_cascade = os.path.join(dirname, "model/haarcascade_frontalface_default.xml")
+
         if not self.benchmark_mode:
             try:
-                with open(r"user_embedding.p", "rb") as file:
+                with open(self.embedding_path, "rb") as file:
                     user_backup = pickle.load(file)
                     self.users = user_backup
                     print(f"Loaded {len(self.users)} users")
@@ -42,10 +46,6 @@ class FaceAuthentication:
                 self.users = []
         else:
             self.users = []
-
-        dirname = os.path.dirname(__file__)
-        path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
-        path_haar_cascade = os.path.join(dirname, "model/haarcascade_frontalface_default.xml")
 
         if IS_RASPBERRY_PI or lite:
             self.net = MobileFaceNetLite()
@@ -168,7 +168,7 @@ class FaceAuthentication:
 
             # persist face embeddings in pickle file
             if not self.benchmark_mode:
-                with open(r"user_embedding.p", "wb") as file:
+                with open(self.embedding_path, "wb") as file:
                     pickle.dump(self.users, file)
 
             print(f"Registered {min_number_faces} faces for {name}")
@@ -273,7 +273,7 @@ class FaceAuthentication:
         print("removed user")
         # also save changes in pickle file
         if not self.benchmark_mode:
-            with open(r"user_embedding.p", "wb") as file:
+            with open(self.embedding_path, "wb") as file:
                 pickle.dump(self.users, file)
 
     def run(self):
