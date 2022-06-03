@@ -203,7 +203,7 @@ class FaceAuthentication:
 
             # when no users are registered, don´t calculate the embedding for a face
             if len(self.users) == 0:
-                return None, None, [face_location]
+                return None, [face_location]
 
             dlib_rectangle = self.location_tuple_to_dlib_rectangle(*face_location)
 
