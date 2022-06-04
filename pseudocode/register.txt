@@ -1,0 +1,25 @@
+
+usable_images = []
+locations = []
+
+# An image is usable, if exactly one face is detected with a histogramm of orientied gradients detector.
+for image in images:
+    locations_in_img = hog_detector(image)
+    if length(locations_in_img) == 1:
+        usable_images.add(image)
+        locations.add(locations_in_img)
+
+# only proceed, if "min_number_faces" images have exactly one face
+if length(usable_images) >= min_number_of_images:
+    for i=0 - length(usable_images):\For
+        face_image = usable_images[i]
+        face_location = locations[i]
+        # normalize faces based on it´s location
+        normalized_face = normalize_face(face_image, face_location)
+        embedding = calculate_face_embedding(normalized_face)
+        # insert into users database
+        safe (user_id, embedding)
+
+    return True
+else:
+    return False
