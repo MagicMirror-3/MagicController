@@ -279,6 +279,8 @@ class FaceAuthentication:
     def run(self):
         """
 
+        Run live detection on a video feed. Notify the mediator, when a face was detected.
+
         :return:
         """
 

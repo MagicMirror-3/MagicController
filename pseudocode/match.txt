@@ -1,0 +1,13 @@
+def match_face(image, face_database):
+    face_location = detect_biggest_face(image)
+        if face_location is not empty:
+            if Length(face_database) == 0:
+                return None
+            normalized_face = self.normalize_face(image, face_location)
+            unknown_embedding = calculate_face_embedding(normalized_face)
+            predicted_user_id = thresholded_knn(face_database, unknown_embedding, threshold=1.0, k=4)
+            if predicted_user_id is not empty:
+                return predicted_user_id
+            else:
+                return "unknown"
+        return None
