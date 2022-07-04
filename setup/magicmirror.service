@@ -1,16 +1,16 @@
 [Unit]
 Description=Magic Mirror Autostart
-Requires=graphical.target docker.service
-After=graphical.target docker.service
+Requires=multi-user.target
+Requires=graphical.target
+Requires=docker.service
 
 [Service]
+Type=idle
+User=pi
 Environment="DISPLAY=:0"
-Environment="XAUTHORITY=/home/pi/.Xauthority"
 ExecStart=/home/pi/MagicController/setup/autostart.sh
 Restart=on-abort
 RestartSec=1
-User=pi
-Group=pi
 
 [Install]
-WantedBy=default.target graphical.target
+WantedBy=multi-user.target
