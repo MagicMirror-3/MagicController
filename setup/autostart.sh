@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 
 xhost +local:
-xrandr --output HDMI-1 --rotate left
+# xrandr --output HDMI-1 --rotate left
+DISPLAY=:0 xrandr --output HDMI-1 --rotate left
 docker stop $(docker container ls -q) || echo "No containers already running" # remove later
 docker run -t \
   -d \
