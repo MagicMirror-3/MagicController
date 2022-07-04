@@ -1,6 +1,6 @@
-sudo apt update -y
-sudo apt upgrade -y
-cd /home/pi || exit
+# sudo apt update -y
+# sudo apt upgrade -y
+# cd /home/pi || exit
 # git clone https://github.com/n1klasD/MagicController.git
 cd /home/pi/MagicController || exit
 
