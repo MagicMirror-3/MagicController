@@ -11,9 +11,8 @@ cd /home/pi/MagicController || exit
 # pull docker image
 docker pull 1646552/magic-controller:latest
 
-# add camera rules
-sudo cp setup/99-camera.rules /etc/udev/rules.d/99-camera.rules
 # create the file /etc/udev/rules.d/99-camera.rules with content: SUBSYSTEM=="vchiq",MODE="0666"
+sudo cp setup/99-camera.rules /etc/udev/rules.d/99-camera.rules
 
 # Add to autostart
 sudo cp /home/pi/MagicController/setup/magicmirror.service /etc/systemd/system/magicmirror.service

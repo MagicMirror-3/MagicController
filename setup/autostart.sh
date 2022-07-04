@@ -2,7 +2,6 @@
 
 sleep 10  # This is ugly, but somehow the only way to make xrandr ready for rotate on startup
 DISPLAY=:0 xrandr --output HDMI-1 --rotate left
-
 docker stop $(docker container ls -q) || echo "No containers already running" # remove later
 docker run -t \
   -d \
