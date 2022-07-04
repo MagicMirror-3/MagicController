@@ -6,8 +6,8 @@ Requires=docker.service
 
 [Service]
 Type=idle
-Environment="DISPLAY=:0"
 User=pi
+Environment="DISPLAY=:0"
 ExecStart=/home/pi/MagicController/setup/autostart.sh
 Restart=on-abort
 RestartSec=1
