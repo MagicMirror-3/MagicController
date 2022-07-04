@@ -11,6 +11,6 @@ docker run -t \
   --net=host \
   --mount type=bind,source=/home/pi/MagicController,target=/MagicController \
   1646552/magic-controller:latest
-# chromium --kiosk http://localhost:8080
-chromium http://localhost:8080
+chromium --kiosk http://localhost:8080
+# chromium http://localhost:8080
 
