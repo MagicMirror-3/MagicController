@@ -1,15 +1,13 @@
 import sys
-import time
 from abc import ABC
 
-# from Configuration import ConfigurationHandler
-import cv2
-
-from util import User
 from Communication import CommunicationHandler
+from Configuration import ConfigurationHandler
 from FaceRecognition import FaceAuthentication
 from FaceRecognition import MirrorFaceOutput
-from Configuration import ConfigurationHandler
+
+
+# from Configuration import ConfigurationHandler
 
 
 class Mediator(ABC):
@@ -33,8 +31,11 @@ class MagicController(Mediator):
                                                       threshold=1.0
                                                       )
 
+        # Current user is default
+        self.current_user_id = 0
+
         # init with the base config, which is user 0
-        ConfigurationHandler.updateConfiguration(0)
+        ConfigurationHandler.updateConfiguration(self.current_user_id)
 
     '''
         self._currentUser = User()
@@ -72,6 +73,26 @@ class MagicController(Mediator):
 
     '''
 
+    def _loadUserLayout(self, user_id: int) -> None:
+        """
+        Updates the layout of the MagicMirror² framework.
+
+        First, the config.js file is updated by the ``ConfigurationHandler`` and on success, the */refresh* route of the
+        MagicModule is called. Also, ``self.current_user_id`` is kept up to date.
+
+        Args:
+            user_id (int): The ID of the user whose layout should be loaded
+
+        Returns:
+            None: Nothing
+        """
+
+        # Keep track of the current user and update the layout if the config was updated
+        if ConfigurationHandler.updateConfiguration(user_id):
+            self.current_user_id = user_id
+
+            self.communication_handler.refresh_layout()
+
     def notify(self, sender: object, *args) -> None:
         # communication handler sends request to register a user
         if isinstance(sender, CommunicationHandler.CreateUser):
@@ -88,19 +109,29 @@ class MagicController(Mediator):
         # Face Recognition detected a face
         if isinstance(sender, MirrorFaceOutput):
             print("call notify: face detected")
-            detected_user_id = args[0]
+            detected_user_id: int = 0 if args[0] is None else int(args[0])
 
-            if ConfigurationHandler.updateConfiguration(0 if detected_user_id is None else detected_user_id):
-                # refresh the mirror layout
-                self.communication_handler.refresh_layout()
-            else:
-                print("Failed to update the configuration.")
+            self._loadUserLayout(detected_user_id)
+
+        # A user is deleted
         if isinstance(sender, CommunicationHandler.DeleteUser):
             user_id = args[0]
 
             self.face_authentication.delete_user(user_id)
 
+            # Restore the default layout if the user was logged on
+            if user_id == self.current_user_id:
+                self._loadUserLayout(0)
+
             print(f"Deleted user: {user_id}")
+
+        # Layout is updated of a user
+        if isinstance(sender, CommunicationHandler.SetLayout):
+            user_id: int = 0 if args[0] is None else int(args[0])
+
+            # Update the MM2 config file if the user is currently detected
+            if user_id == self.current_user_id:
+                self._loadUserLayout(user_id)
 
 
 def main():

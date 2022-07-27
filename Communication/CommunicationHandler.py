@@ -1,6 +1,6 @@
 import json
 import threading
-from threading import Thread, Event
+from threading import Thread
 from wsgiref.simple_server import make_server
 
 import falcon
@@ -206,6 +206,10 @@ class CommunicationHandler:
             resp.status = falcon.HTTP_201
 
     class SetLayout(Route):
+        def __init__(self, db, mediator):
+            super().__init__(db)
+            self.mediator = mediator
+
         def on_post(self, req, resp):
             """
             Sets the layout of a given user. It expects a JSON with the following structure.
@@ -226,7 +230,12 @@ class CommunicationHandler:
             else:
                 raise Exception
 
-            self.db.set_layout_of_user(request_data['user_id'], layout)
+            user_id = request_data['user_id']
+
+            self.db.set_layout_of_user(user_id, layout)
+
+            # Notify the MagicController of the layout update
+            self.mediator.notify(self, user_id)
 
             resp.status = falcon.HTTP_201
 
@@ -300,7 +309,7 @@ class CommunicationHandler:
         getUsers = self.GetUsers(self.db)
         updateUser = self.UpdateUser(self.db)
         getLayout = self.GetLayout(self.db)
-        setLayout = self.SetLayout(self.db)
+        setLayout = self.SetLayout(self.db, self.mediator)
         deleteUser = self.DeleteUser(self.db, self.mediator)
         getModules = self.GetModules(self.db)
         updateModuleConfiguration = self.UpdateModuleConfiguration(self.db)

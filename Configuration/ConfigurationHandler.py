@@ -1,9 +1,9 @@
 import json
 import time
 
-from .FileHelper import FileHelper
 from DatabaseAdapter import DatabaseAdapter
-from util import User, CONSTANTS
+from util import CONSTANTS
+from .FileHelper import FileHelper
 
 
 class ConfigurationHandler:
@@ -60,7 +60,8 @@ class ConfigurationHandler:
 
             return True
         except FileNotFoundError as e:
-            print(f"File not found: {e}")
+            print(f"File not found: '{e.filename}'")
+            print("Is this running in a Magic-Mirror environment?")
             return False
 
 
