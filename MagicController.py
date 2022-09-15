@@ -153,6 +153,7 @@ class MagicController(Mediator):
 
         logger.warning("This notification was not handled correctly!")
 
+
 @logger.catch
 def main():
     try:
