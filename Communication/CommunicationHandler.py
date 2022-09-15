@@ -2,10 +2,10 @@ import json
 import threading
 from threading import Thread
 from wsgiref.simple_server import make_server
-from loguru import logger
 
 import falcon
 import requests
+from loguru import logger
 
 from DatabaseAdapter import DatabaseAdapter
 from util import get_image_from_base64
