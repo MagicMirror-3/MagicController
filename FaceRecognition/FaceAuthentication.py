@@ -1,3 +1,4 @@
+import os
 import pickle
 import platform
 import time
@@ -5,14 +6,13 @@ from threading import Thread
 
 import cv2 as cv
 import dlib
-from imutils.video import VideoStream
-import os
-
 import numpy as np
+from imutils.video import VideoStream
+from loguru import logger
 
+from FaceRecognition.MirrorFaceOutput import MirrorFaceOutput
 from FaceRecognition.MobileFaceNetLite import MobileFaceNetLite
 from FaceRecognition.MobileFaceNetStandard import MobileFaceNetStandard
-from FaceRecognition.MirrorFaceOutput import MirrorFaceOutput
 from util import thresholded_knn
 
 IS_RASPBERRY_PI = platform.machine() == "armv7l"
@@ -24,6 +24,8 @@ class FaceAuthentication:
     """
 
     def __init__(self, benchmark_mode=False, lite=True, threshold=0.8, resolution=(640, 480), mediator=None):
+        logger.debug("Starting the CommunicationHandler...")
+
         # load face embeddings from file, if file exists and benchmark mode is turned off
 
         self.benchmark_mode = benchmark_mode
@@ -40,18 +42,20 @@ class FaceAuthentication:
                 with open(self.embedding_path, "rb") as file:
                     user_backup = pickle.load(file)
                     self.users = user_backup
-                    print(f"Loaded {len(self.users)} users")
+                    logger.trace(f"Loaded '{len(self.users)}' users from pickle file")
             except FileNotFoundError:
-                print("Could not load user data.")
+                logger.warning("Could not load user data from pickle file.")
                 self.users = []
         else:
             self.users = []
 
         if IS_RASPBERRY_PI or lite:
+            logger.trace("Running on a PI")
             self.net = MobileFaceNetLite()
             path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
             self.net.load_model(path_mobile_face_net)
         else:
+            logger.trace("Running on a desktop")
             self.net = MobileFaceNetStandard()
             path_standard_face_net = os.path.join(dirname, "model/MobileFaceNet.pb")
             self.net.load_model(path_standard_face_net)
@@ -64,10 +68,10 @@ class FaceAuthentication:
 
         # initiate camera
         if IS_RASPBERRY_PI:
-            print("Use picamera")
+            logger.debug("Using picamera")
             self.capture = VideoStream(usePiCamera=True, resolution=resolution).start()
         else:
-            print("Use USB Webcam")
+            logger.debug("Using USB Webcam")
             self.capture = VideoStream(src=0, resolution=resolution).start()
 
         self.mediator = mediator
@@ -75,6 +79,8 @@ class FaceAuthentication:
         # threading
         self.thread = Thread(target=self.run, name="FaceAuthentication")
         self.thread.start()
+
+        logger.success("FaceAuthentication started!")
 
     def get_face_locations(self, image, haar_classifier):
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
@@ -101,7 +107,6 @@ class FaceAuthentication:
         face_locations = self.get_face_locations(image, self.haar_cascade_matching)
 
         if len(face_locations) > 0:
-
             # get location of the biggest face
             faces_sizes = [w + h for (x, y, w, h) in face_locations]
             return face_locations[faces_sizes.index(max(faces_sizes))]
@@ -171,12 +176,12 @@ class FaceAuthentication:
                 with open(self.embedding_path, "wb") as file:
                     pickle.dump(self.users, file)
 
-            print(f"Registered {min_number_faces} faces for {name}")
+            logger.trace(f"Registered '{min_number_faces}' faces for '{name}'")
             self.active = True
             return True
 
         else:
-            print(f"Only detected {len(usable_images)} usable images")
+            logger.warning(f"Only detected '{len(usable_images)}' usable images")
             self.active = True
             return False
 
@@ -270,7 +275,9 @@ class FaceAuthentication:
             if username == name:
                 self.users.pop(index)
                 break
-        print("removed user")
+
+        logger.trace("Removed user from face detection")
+
         # also save changes in pickle file
         if not self.benchmark_mode:
             with open(self.embedding_path, "wb") as file:
@@ -297,7 +304,7 @@ class FaceAuthentication:
                     match, face_location = self.match_face(frame)
                     end = time.time()
                     if match is not None:
-                        print(f"Identified {match}, FPS: {1 / (end - start)}")
+                        logger.debug(f"Identified {match}, FPS: {1 / (end - start)}")
 
                         if match != "unknown":
                             output.face_detected(match)
