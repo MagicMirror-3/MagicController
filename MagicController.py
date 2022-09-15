@@ -93,7 +93,7 @@ class MagicController(Mediator):
             None: Nothing
         """
 
-        logger.debug(f"Swapping layout from {self.current_user_id} to {user_id}")
+        logger.debug(f"Swapping layout from '{self.current_user_id}' to '{user_id}'")
 
         # Keep track of the current user and update the layout if the config was updated
         if ConfigurationHandler.updateConfiguration(user_id):
@@ -102,7 +102,7 @@ class MagicController(Mediator):
             self.communication_handler.refresh_layout()
 
     def notify(self, sender: object, *args) -> None:
-        logger.debug(f"Notification from {sender} with the arguments {args}")
+        logger.debug(f"Notification from '{sender}' with the arguments '{args}'")
 
         # communication handler sends request to register a user
         if isinstance(sender, CommunicationHandler.CreateUser):
@@ -113,7 +113,6 @@ class MagicController(Mediator):
             # Call FaceAuthentication to register faces
             success = self.face_authentication.register_faces(user_id, images, min_number_faces=4, mode='slow')
 
-            logger.debug(f"New user created: {success}")
             # call callback, to send the response to the http server.
             callback(success)
 
@@ -122,7 +121,7 @@ class MagicController(Mediator):
         # Face Recognition detected a face
         if isinstance(sender, MirrorFaceOutput):
             detected_user_id: int = 0 if args[0] is None else int(args[0])
-            logger.debug(f"User {detected_user_id} detected!")
+            logger.debug(f"User '{detected_user_id}' detected!")
 
             self._loadUserLayout(detected_user_id)
 
