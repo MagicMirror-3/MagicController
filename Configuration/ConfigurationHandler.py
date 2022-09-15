@@ -1,6 +1,8 @@
 import json
 import time
 
+from loguru import logger
+
 from DatabaseAdapter import DatabaseAdapter
 from util import CONSTANTS
 from .FileHelper import FileHelper
@@ -23,6 +25,8 @@ class ConfigurationHandler:
             bool: True, if the config file was updates successfully
         """
 
+        logger.debug(f"Loading the configuration from '{newUser}'")
+
         try:
             # Create the database adapter here to prevent sqlite3 thread error
             database = DatabaseAdapter()
@@ -37,7 +41,7 @@ class ConfigurationHandler:
                 # Close the connection
                 database.close()
             except Exception as e:
-                print(f"Something went wrong while retrieving data from the database: {e}")
+                logger.critical(f"Something went wrong while retrieving data from the database: {e}")
                 return False
 
             # Read the JSON template
@@ -46,7 +50,7 @@ class ConfigurationHandler:
 
             # Check if modules list ist valid
             if not isinstance(moduleList, list):
-                print(f"Modules list is not a list: {moduleList}")
+                logger.error(f"Modules list is not a list: {moduleList}")
                 return False
 
             # Add the module of the user to the list
@@ -58,10 +62,11 @@ class ConfigurationHandler:
             # Save the contents
             FileHelper.writeFile(CONSTANTS.FULL_CONFIG_PATH, configFile)
 
+            logger.success("Successfully replaced the configuration file")
             return True
         except FileNotFoundError as e:
-            print(f"File not found: '{e.filename}'")
-            print("Is this running in a Magic-Mirror environment?")
+            logger.critical(f"File not found: '{e.filename}'")
+            logger.warning("Is this running in a Magic-Mirror environment?")
             return False
 
 
