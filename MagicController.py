@@ -25,7 +25,7 @@ class BaseComponent:
 
 class MagicController(Mediator):
     def __init__(self, host):
-        logger.info("Starting the MagicController...")
+        logger.debug("Starting the MagicController...")
 
         self.communication_handler = CommunicationHandler(self, host)
         self.face_authentication = FaceAuthentication(benchmark_mode=False,

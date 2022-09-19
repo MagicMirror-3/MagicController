@@ -308,7 +308,7 @@ class FaceAuthentication:
                             logger.trace(f"Identified {match}, FPS: {1 / (end - start)}")
                         except ZeroDivisionError:
                             pass
-                        
+
                         if match != "unknown":
                             output.face_detected(match)
 
@@ -351,7 +351,6 @@ def localize_faces(image, detector, sample=1):
 
 
 def main():
-
     print(os.path.abspath('model/haarcascade_frontalface_default.xml'))
 
 

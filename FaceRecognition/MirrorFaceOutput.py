@@ -1,4 +1,5 @@
 from threading import Timer
+from loguru import logger
 
 
 class MirrorFaceOutput:
@@ -52,6 +53,8 @@ class MirrorFaceOutput:
         :param user:
         :return:
         """
+
+        logger.debug(f"No face detected for {self.timeout}s. Swapping back to default!")
 
         # Timer has passed
         if self.mediator is not None:
