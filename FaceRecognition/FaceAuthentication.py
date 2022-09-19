@@ -304,8 +304,11 @@ class FaceAuthentication:
                     match, face_location = self.match_face(frame)
                     end = time.time()
                     if match is not None:
-                        logger.trace(f"Identified {match}, FPS: {1 / (end - start)}")
-
+                        try:
+                            logger.trace(f"Identified {match}, FPS: {1 / (end - start)}")
+                        except ZeroDivisionError:
+                            pass
+                        
                         if match != "unknown":
                             output.face_detected(match)
 
