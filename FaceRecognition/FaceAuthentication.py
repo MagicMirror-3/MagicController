@@ -304,7 +304,7 @@ class FaceAuthentication:
                     match, face_location = self.match_face(frame)
                     end = time.time()
                     if match is not None:
-                        logger.debug(f"Identified {match}, FPS: {1 / (end - start)}")
+                        logger.trace(f"Identified {match}, FPS: {1 / (end - start)}")
 
                         if match != "unknown":
                             output.face_detected(match)
