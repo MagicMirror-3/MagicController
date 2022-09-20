@@ -1,12 +1,12 @@
 import os
 import platform
 
+import cv2 as cv
 import dlib
 import numpy as np
-import cv2 as cv
+from loguru import logger
 
 from .MobileFaceNet import MobileFaceNet, import_tensorflow
-
 
 # import tensorflow conbditionally, use Interpreter from tflite_runtime if one is on the raspberry pi
 IS_RASPBERRY_PI = platform.machine() == "armv7l"
@@ -34,9 +34,9 @@ class MobileFaceNetLite(MobileFaceNet):
             # Get input and output tensors.
             self.input_details = self.interpreter.get_input_details()
             self.output_details = self.interpreter.get_output_details()
-            print("Loaded MobileFaceNet model")
+            logger.debug("Loaded MobileFaceNet model")
         else:
-            print('Found no model.')
+            logger.warning('Found no model to use.')
 
     def calculate_embedding(self, face_image):
         face_image = face_image.astype(np.float32)
@@ -45,6 +45,7 @@ class MobileFaceNetLite(MobileFaceNet):
         self.interpreter.set_tensor(self.input_details[0]['index'], face_image)
         self.interpreter.invoke()
         return self.interpreter.get_tensor(self.output_details[0]['index'])
+
 
 def main():
     def localize_faces(image, detector, sample=1):
