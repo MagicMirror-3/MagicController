@@ -20,7 +20,7 @@ sleep 5
 # Determine whether chromium is executed with 'chroumium' or 'chromium-browser'
 is_chromium=$(which chromium)
 
-if [ ! -n "$is_chromium" ]
+if [ -n "$is_chromium" ]
 then
   chromium --kiosk http://localhost:8080
 else
