@@ -15,9 +15,9 @@ RUN pip install --no-cache-dir "picamera[array]"
 
 RUN apt-get install cmake build-essential -y
 
-# install python dependancies
+# install python dependencies
 RUN pip install --no-cache-dir wheel dlib
-RUN pip install --no-cache-dir falcon requests imutils
+RUN pip install --no-cache-dir falcon requests imutils loguru
 
 # install nodejs and magicMirror
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
