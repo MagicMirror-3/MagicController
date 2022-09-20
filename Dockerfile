@@ -28,7 +28,7 @@ RUN npm install --only=prod --omit=dev
 
 # install magicModule
 WORKDIR /MagicMirror/modules
-RUN git clone https://github.com/n1klasD/MagicModule
+RUN git clone https://github.com/MagicMirror-3/MagicModule
 
 # install third party modules
 RUN git clone https://github.com/lavolp3/MMM-AVStock
