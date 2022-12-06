@@ -1,13 +1,19 @@
-import cv2 as cv
-import numpy as np
 import os
 
+import cv2 as cv
+import numpy as np
 from sklearn.datasets import fetch_lfw_people
 
 faces_per_person = 35
 number_of_people = 20
 
-lfw_people = fetch_lfw_people(min_faces_per_person=faces_per_person, resize=2.0, funneled=False, slice_=None, color=True)
+lfw_people = fetch_lfw_people(
+    min_faces_per_person=faces_per_person,
+    resize=2.0,
+    funneled=False,
+    slice_=None,
+    color=True,
+)
 
 new_directory = os.path.join(os.getcwd(), "benchmark_images")
 try:

@@ -10,20 +10,25 @@ import numpy as np
 from imutils.video import VideoStream
 from loguru import logger
 
-from FaceRecognition.MirrorFaceOutput import MirrorFaceOutput
-from FaceRecognition.MobileFaceNetLite import MobileFaceNetLite
-from FaceRecognition.MobileFaceNetStandard import MobileFaceNetStandard
+from face_recognition.MirrorFaceOutput import MirrorFaceOutput
+from face_recognition.MobileFaceNetLite import MobileFaceNetLite
+from face_recognition.MobileFaceNetStandard import MobileFaceNetStandard
 from util import thresholded_knn
 
 IS_RASPBERRY_PI = platform.machine() == "armv7l"
 
 
 class FaceAuthentication:
-    """
+    """ """
 
-    """
-
-    def __init__(self, benchmark_mode=False, lite=True, threshold=0.8, resolution=(640, 480), mediator=None):
+    def __init__(
+        self,
+        benchmark_mode=False,
+        lite=True,
+        threshold=0.8,
+        resolution=(640, 480),
+        mediator=None,
+    ):
         logger.debug("Starting the CommunicationHandler...")
 
         # load face embeddings from file, if file exists and benchmark mode is turned off
@@ -34,15 +39,21 @@ class FaceAuthentication:
         # create paths
         dirname = os.path.dirname(__file__)
         self.embedding_path = os.path.join(dirname, "user_embedding.p")
-        path_shape_predictor = os.path.join(dirname, "model/shape_predictor_5_face_landmarks.dat")
-        path_haar_cascade = os.path.join(dirname, "model/haarcascade_frontalface_default.xml")
+        path_shape_predictor = os.path.join(
+            dirname, "model/shape_predictor_5_face_landmarks.dat"
+        )
+        path_haar_cascade = os.path.join(
+            dirname, "model/haarcascade_frontalface_default.xml"
+        )
 
         if not self.benchmark_mode:
             try:
                 with open(self.embedding_path, "rb") as file:
                     user_backup = pickle.load(file)
                     self.users = user_backup
-                    logger.trace(f"Loaded '{len(self.users)}' users from pickle file")
+                    logger.trace(
+                        f"Loaded '{len(self.users)}' users from pickle file"
+                    )
             except FileNotFoundError:
                 logger.warning("Could not load user data from pickle file.")
                 self.users = []
@@ -52,24 +63,32 @@ class FaceAuthentication:
         if IS_RASPBERRY_PI or lite:
             logger.trace("Running on a PI")
             self.net = MobileFaceNetLite()
-            path_mobile_face_net = os.path.join(dirname, "model/MobileFaceNet.tflite")
+            path_mobile_face_net = os.path.join(
+                dirname, "model/MobileFaceNet.tflite"
+            )
             self.net.load_model(path_mobile_face_net)
         else:
             logger.trace("Running on a desktop")
             self.net = MobileFaceNetStandard()
-            path_standard_face_net = os.path.join(dirname, "model/MobileFaceNet.pb")
+            path_standard_face_net = os.path.join(
+                dirname, "model/MobileFaceNet.pb"
+            )
             self.net.load_model(path_standard_face_net)
 
         self.active = True
         self.haar_cascade_matching = cv.CascadeClassifier(path_haar_cascade)
-        self.haar_cascade_registration = cv.CascadeClassifier(path_haar_cascade)
+        self.haar_cascade_registration = cv.CascadeClassifier(
+            path_haar_cascade
+        )
         self.landmark_detector = dlib.shape_predictor(path_shape_predictor)
         self.detector = dlib.get_frontal_face_detector()
 
         # initiate camera
         if IS_RASPBERRY_PI:
             logger.debug("Using picamera")
-            self.capture = VideoStream(usePiCamera=True, resolution=resolution).start()
+            self.capture = VideoStream(
+                usePiCamera=True, resolution=resolution
+            ).start()
         else:
             logger.debug("Using USB Webcam")
             self.capture = VideoStream(src=0, resolution=resolution).start()
@@ -87,10 +106,7 @@ class FaceAuthentication:
 
         # extract faces with haar classifier
         face_locations = haar_classifier.detectMultiScale(
-            image_gray,
-            scaleFactor=1.1,
-            minNeighbors=5,
-            minSize=(50, 50)
+            image_gray, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50)
         )
 
         return face_locations
@@ -104,7 +120,9 @@ class FaceAuthentication:
 
         """
 
-        face_locations = self.get_face_locations(image, self.haar_cascade_matching)
+        face_locations = self.get_face_locations(
+            image, self.haar_cascade_matching
+        )
 
         if len(face_locations) > 0:
             # get location of the biggest face
@@ -121,7 +139,7 @@ class FaceAuthentication:
         image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         return self.detector(image_gray, 0)
 
-    def register_faces(self, name, images, min_number_faces=1, mode='fast'):
+    def register_faces(self, name, images, min_number_faces=1, mode="fast"):
         """
 
         Register multiple faces, there must be at least min_number of images, that contain identifiable faces.
@@ -135,7 +153,7 @@ class FaceAuthentication:
 
         self.active = False
 
-        FAST = mode == 'fast'
+        FAST = mode == "fast"
 
         images_rgb = [cv.cvtColor(image, cv.COLOR_BGR2RGB) for image in images]
 
@@ -146,7 +164,9 @@ class FaceAuthentication:
         # An image is usable, if exactly one face is detected
         for image in images_rgb:
             if FAST:
-                locations_in_img = self.get_face_locations(image, self.haar_cascade_registration)
+                locations_in_img = self.get_face_locations(
+                    image, self.haar_cascade_registration
+                )
             else:
                 locations_in_img = self.extract_faces_hog(image)
 
@@ -162,10 +182,16 @@ class FaceAuthentication:
 
             # convert location from tuple to dlib rectangle
             if FAST:
-                locations = [self.location_tuple_to_dlib_rectangle(*location) for location in locations]
+                locations = [
+                    self.location_tuple_to_dlib_rectangle(*location)
+                    for location in locations
+                ]
 
             # normalize faces based on it´s location
-            for face in [self.normalize_face(face, location) for face, location in zip(usable_images, locations)]:
+            for face in [
+                self.normalize_face(face, location)
+                for face, location in zip(usable_images, locations)
+            ]:
                 # calculate embedding
                 embedding = self.net.calculate_embedding(face)
                 # insert into users database
@@ -181,7 +207,9 @@ class FaceAuthentication:
             return True
 
         else:
-            logger.warning(f"Only detected '{len(usable_images)}' usable images")
+            logger.warning(
+                f"Only detected '{len(usable_images)}' usable images"
+            )
             self.active = True
             return False
 
@@ -211,14 +239,24 @@ class FaceAuthentication:
             if len(self.users) == 0:
                 return None, [face_location]
 
-            dlib_rectangle = self.location_tuple_to_dlib_rectangle(*face_location)
+            dlib_rectangle = self.location_tuple_to_dlib_rectangle(
+                *face_location
+            )
 
-            normalized_face = self.normalize_face(image, dlib_rectangle, size=112, padding=0.3)
+            normalized_face = self.normalize_face(
+                image, dlib_rectangle, size=112, padding=0.3
+            )
 
             # calculate embedding for new face
             unknown_embedding = self.net.calculate_embedding(normalized_face)
 
-            predicted_label = thresholded_knn(self.users, unknown_embedding, self.distance_euclid, self.threshold, k=4)
+            predicted_label = thresholded_knn(
+                self.users,
+                unknown_embedding,
+                self.distance_euclid,
+                self.threshold,
+                k=4,
+            )
 
             if predicted_label is not None:
                 return predicted_label, [face_location]
@@ -305,7 +343,9 @@ class FaceAuthentication:
                     end = time.time()
                     if match is not None:
                         try:
-                            logger.trace(f"Identified {match}, FPS: {1 / (end - start)}")
+                            logger.trace(
+                                f"Identified {match}, FPS: {1 / (end - start)}"
+                            )
                         except ZeroDivisionError:
                             pass
 
@@ -319,15 +359,20 @@ class FaceAuthentication:
                         output.no_faces()
 
                     if face_location is not None:
-                        face_location = [(y, x + w, y + h, x) for (x, y, w, h) in face_location]
+                        face_location = [
+                            (y, x + w, y + h, x)
+                            for (x, y, w, h) in face_location
+                        ]
 
                         # draw rectangles for faces
                         for f1, f2, f3, f4 in face_location:
-                            frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
+                            frame = cv.rectangle(
+                                frame, (f2, f1), (f4, f3), (255, 0, 0), 3
+                            )
 
                     if not IS_RASPBERRY_PI:
-                        cv.imshow('Video', frame)
-                        if cv.waitKey(20) & 0xFF == ord('d'):
+                        cv.imshow("Video", frame)
+                        if cv.waitKey(20) & 0xFF == ord("d"):
                             break
             else:
                 pass
@@ -351,7 +396,7 @@ def localize_faces(image, detector, sample=1):
 
 
 def main():
-    print(os.path.abspath('model/haarcascade_frontalface_default.xml'))
+    print(os.path.abspath("model/haarcascade_frontalface_default.xml"))
 
 
 if __name__ == "__main__":

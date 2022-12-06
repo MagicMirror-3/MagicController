@@ -56,20 +56,25 @@ import random
 
 import cv2 as cv
 import dlib
-
-from FaceAuthentication import FaceAuthentication
 import pandas as pd
+from FaceAuthentication import FaceAuthentication
 
 
 def create_dataset():
-    haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
+    haar_cascade = cv.CascadeClassifier(
+        cv.data.haarcascades + "haarcascade_frontalface_default.xml"
+    )
     detector = dlib.get_frontal_face_detector()
     dataset = dict()
 
     training_images_path = os.path.join(os.getcwd(), "benchmark_images")
     for root, dirs, files in os.walk(training_images_path):
         for file in files:  # check files in every directory
-            if file.endswith("jpeg") or file.endswith("jpg") or file.endswith("png"):
+            if (
+                file.endswith("jpeg")
+                or file.endswith("jpg")
+                or file.endswith("png")
+            ):
                 file_path = os.path.join(root, file)
                 person_name = os.path.basename(root)
 
@@ -80,15 +85,15 @@ def create_dataset():
 
                 # extract faces
                 face_locations_haar = haar_cascade.detectMultiScale(
-                    image,
-                    scaleFactor=1.2,
-                    minNeighbors=5,
-                    minSize=(50, 50)
+                    image, scaleFactor=1.2, minNeighbors=5, minSize=(50, 50)
                 )
 
                 face_locations_hog = detector(image, 1)
 
-                if len(face_locations_haar) != 1 or len(face_locations_hog) != 1:
+                if (
+                    len(face_locations_haar) != 1
+                    or len(face_locations_hog) != 1
+                ):
                     print(f"Error! Detected 0 or more than one faces")
                     continue
 
@@ -134,7 +139,14 @@ def main():
     ]
     """
 
-    df = pd.DataFrame(columns=["n_training_images", "true_name", "predicted_name", "smallest_distance"])
+    df = pd.DataFrame(
+        columns=[
+            "n_training_images",
+            "true_name",
+            "predicted_name",
+            "smallest_distance",
+        ]
+    )
 
     # ---------------------------------------------
 
@@ -142,18 +154,29 @@ def main():
 
     # ---------------------
     for n_training_images in range(max_training_images):
-        print(f" @@@@@@@@@@@@@@ {n_training_images + 1} training images @@@@@@@@@@@@@@ ")
+        print(
+            f" @@@@@@@@@@@@@@ {n_training_images + 1} training images @@@@@@@@@@@@@@ "
+        )
 
         for i in range(iterations):
             print(f" @@@@@@@@@@@@@@ Iteration {i + 1} @@@@@@@@@@@@@@ ")
             # training images
             training_images = dict()
             for key, values in master_dataset.items():
-                training_images[key] = values[i:i + n_training_images + 1]
+                training_images[key] = values[i : i + n_training_images + 1]
             # testing images
             testing_images = dict()
             for key, values in master_dataset.items():
-                testing_images[key] = values[:i] + values[i + n_training_images+1:iterations + n_training_images+1]
+                testing_images[key] = (
+                    values[:i]
+                    + values[
+                        i
+                        + n_training_images
+                        + 1 : iterations
+                        + n_training_images
+                        + 1
+                    ]
+                )
 
             auth.delete_all_users()
 
@@ -166,16 +189,21 @@ def main():
                         print(f"Failed to register {name}")
 
             # test the classifier
-            print(f'{"Actual" :<30} {"Predicted" :<30} {"Distance" :<10} {"Correct" :<5}')
+            print(
+                f'{"Actual" :<30} {"Predicted" :<30} {"Distance" :<10} {"Correct" :<5}'
+            )
             for name, images in testing_images.items():
                 for image in images:
-                    match, distance, face_location = auth.match_face(image, tolerance=10)
+                    match, distance, face_location = auth.match_face(
+                        image, tolerance=10
+                    )
 
                     if match is None or distance is None:
                         print(f'{name :<30} {"--" :<30} {"--":<10} {"--" :<5}')
                     else:
                         print(
-                            f'{name :<30} {match :<30} {"{0:.4f}".format(distance) :<10} {"yes" if name == match else "no" :<5}')
+                            f'{name :<30} {match :<30} {"{0:.4f}".format(distance) :<10} {"yes" if name == match else "no" :<5}'
+                        )
 
                     # append row to dataframe
                     row = [n_training_images, name, match, distance]

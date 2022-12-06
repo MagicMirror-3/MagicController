@@ -1,9 +1,9 @@
+import os
+import statistics
 import time
 
-from FaceAuthentication import FaceAuthentication
-import os
 import cv2 as cv
-import statistics
+from FaceAuthentication import FaceAuthentication
 
 dirname = os.path.dirname(__file__)
 
@@ -38,4 +38,3 @@ for i in range(40):
         print("No match")
 
 print(f"Average FPS: {statistics.mean(fps_list)}")
-

@@ -1,15 +1,22 @@
 import time
+from statistics import mean
 
 import cv2 as cv
 import dlib
-from statistics import mean
-
 import imutils
 from imutils import face_utils
 
 
-def benchmark_haar(video_path, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50), maxSize=(400, 400)):
-    haar_cascade = cv.CascadeClassifier(cv.data.haarcascades + 'haarcascade_frontalface_default.xml')
+def benchmark_haar(
+    video_path,
+    scaleFactor=1.1,
+    minNeighbors=5,
+    minSize=(50, 50),
+    maxSize=(400, 400),
+):
+    haar_cascade = cv.CascadeClassifier(
+        cv.data.haarcascades + "haarcascade_frontalface_default.xml"
+    )
 
     # benchmark variables
     frames = 0
@@ -35,7 +42,7 @@ def benchmark_haar(video_path, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50)
                 scaleFactor=scaleFactor,
                 minNeighbors=minNeighbors,
                 minSize=minSize,
-                maxSize=maxSize
+                maxSize=maxSize,
             )
             end = time.time_ns()
 
@@ -47,18 +54,21 @@ def benchmark_haar(video_path, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50)
                 false_detections += 1
 
             # draw rectangles for faces
-            face_locations = [(y, x + w, y + h, x) for (x, y, w, h) in face_locations]
+            face_locations = [
+                (y, x + w, y + h, x) for (x, y, w, h) in face_locations
+            ]
             for f1, f2, f3, f4 in face_locations:
                 frame = cv.rectangle(frame, (f2, f1), (f4, f3), (255, 0, 0), 3)
 
             cv.imshow("Benchmark Video", frame)
-            if cv.waitKey(1) and 0xFF == ord('d'):
+            if cv.waitKey(1) and 0xFF == ord("d"):
                 break
         else:
             break
 
     print(
-        f"Detection Rate: {round(detected_frames / frames, 4)}, False Detection Rate: {round(false_detections / frames, 4)}, Average Detection Time: {mean(detection_times) / 10 ** 6} ms")
+        f"Detection Rate: {round(detected_frames / frames, 4)}, False Detection Rate: {round(false_detections / frames, 4)}, Average Detection Time: {mean(detection_times) / 10 ** 6} ms"
+    )
 
     capture.release()
     cv.destroyAllWindows()
@@ -100,19 +110,26 @@ def benchmark_fhog(video_path, sample=0):
                 cv.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
             cv.imshow("Benchmark Video", frame)
-            if cv.waitKey(1) and 0xFF == ord('d'):
+            if cv.waitKey(1) and 0xFF == ord("d"):
                 break
         else:
             break
 
     print(
-        f"Detection Rate: {round(detected_frames / frames, 4)}, False Detection Rate: {round(false_detections / frames, 4)}, Average Detection Time: {mean(detection_times) / 10 ** 6} ms")
+        f"Detection Rate: {round(detected_frames / frames, 4)}, False Detection Rate: {round(false_detections / frames, 4)}, Average Detection Time: {mean(detection_times) / 10 ** 6} ms"
+    )
 
     capture.release()
     cv.destroyAllWindows()
 
 
-benchmark_haar("videos/FaceDetectionBenchmark.mp4", scaleFactor=1.2, minNeighbors=5, minSize=(50, 50), maxSize=(300, 300))
+benchmark_haar(
+    "videos/FaceDetectionBenchmark.mp4",
+    scaleFactor=1.2,
+    minNeighbors=5,
+    minSize=(50, 50),
+    maxSize=(300, 300),
+)
 # benchmark_fhog("videos/FaceDetectionBenchmark.mp4", sample=0)
 
 """

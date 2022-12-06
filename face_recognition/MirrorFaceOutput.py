@@ -1,11 +1,10 @@
 from threading import Timer
+
 from loguru import logger
 
 
 class MirrorFaceOutput:
-    """
-
-    """
+    """ """
 
     def __init__(self, mediator):
         self.timeout = 10
@@ -33,7 +32,9 @@ class MirrorFaceOutput:
             self.current_identified_user = detected_user
 
         # create a new timer
-        self.timer = Timer(self.timeout, self.face_timeout, args=[detected_user])
+        self.timer = Timer(
+            self.timeout, self.face_timeout, args=[detected_user]
+        )
 
     def no_faces(self):
         """
@@ -54,7 +55,9 @@ class MirrorFaceOutput:
         :return:
         """
 
-        logger.debug(f"No face detected for {self.timeout}s. Swapping back to default!")
+        logger.debug(
+            f"No face detected for {self.timeout}s. Swapping back to default!"
+        )
 
         # Timer has passed
         if self.mediator is not None:

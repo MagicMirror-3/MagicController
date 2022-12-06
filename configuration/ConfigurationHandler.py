@@ -5,6 +5,7 @@ from loguru import logger
 
 from DatabaseAdapter import DatabaseAdapter
 from util import CONSTANTS
+
 from .FileHelper import FileHelper
 
 
@@ -41,11 +42,15 @@ class ConfigurationHandler:
                 # Close the connection
                 database.close()
             except Exception as e:
-                logger.critical(f"Something went wrong while retrieving data from the database: {e}")
+                logger.critical(
+                    f"Something went wrong while retrieving data from the database: {e}"
+                )
                 return False
 
             # Read the JSON template
-            templateConfig = FileHelper.readFile(CONSTANTS.TEMPLATE_JSON, "json")
+            templateConfig = FileHelper.readFile(
+                CONSTANTS.TEMPLATE_JSON, "json"
+            )
             moduleList: list = templateConfig["modules"]
 
             # Check if modules list ist valid
@@ -57,7 +62,9 @@ class ConfigurationHandler:
             moduleList.extend(layout)
 
             # Replace the contents in the configFile
-            configFile = configFile.replace("'%TEMPLATE_CONFIG%'", json.dumps(templateConfig))
+            configFile = configFile.replace(
+                "'%TEMPLATE_CONFIG%'", json.dumps(templateConfig)
+            )
 
             # Save the contents
             FileHelper.writeFile(CONSTANTS.FULL_CONFIG_PATH, configFile)
@@ -70,7 +77,7 @@ class ConfigurationHandler:
             return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     handler = ConfigurationHandler()
     handler.updateConfiguration(0)
 

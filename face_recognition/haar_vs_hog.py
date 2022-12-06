@@ -1,13 +1,15 @@
 import os
+import statistics
+import time
 
 import cv2 as cv
 import dlib
-import time
-import statistics
 
 # setup
 dirname = os.path.dirname(__file__)
-path_haar_cascade = os.path.join(dirname, "model/haarcascade_frontalface_default.xml")
+path_haar_cascade = os.path.join(
+    dirname, "model/haarcascade_frontalface_default.xml"
+)
 haar_classifier = cv.CascadeClassifier(path_haar_cascade)
 
 detector = dlib.get_frontal_face_detector()
@@ -18,6 +20,7 @@ image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
 
 
 # inference
+
 
 def benchmark_fct(function, n):
     timings1 = []
@@ -32,10 +35,7 @@ def benchmark_fct(function, n):
 
 def haar():
     _ = haar_classifier.detectMultiScale(
-        image_gray,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(50, 50)
+        image_gray, scaleFactor=1.1, minNeighbors=5, minSize=(50, 50)
     )
 
 
