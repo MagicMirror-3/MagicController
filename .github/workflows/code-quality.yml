@@ -1,0 +1,44 @@
+name: Check Code Quality
+
+on:
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  check-code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Pipenv
+        run: pip install requirements.txt
+
+      - name: Cache Pipenv requirements
+        id: cache-pipenv
+        uses: actions/cache@v3
+        with:
+          path: ~/.local/share/virtualenvs
+          key: ${{ runner.os }}-pipenv-${{ hashFiles('**/Pipfile.lock') }}
+
+      - name: Install requirements
+        if: steps.cache-pipenv.outputs.cache-hit != 'true'
+        run: pipenv install --deploy --dev
+
+      - name: Check code and import formatting
+        run: |
+          pipenv run black --check .
+          pipenv run isort --check .
+
+      - name: Check static typing
+        run: pipenv run pyright
+
+      - name: Check linting
+        run: pipenv run pylint *.py communication configuration face_recognition
