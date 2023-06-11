@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+# TODO: Figure out how to restrict packages for RaspberryPi (requirements_raspberry.txt)
+requests = "*"
+loguru = "*"
+falcon = "*"
+numpy = "*"
+dlib = "*"
+cmake = "*"
+imutils = "*"
+tensorflow = "*"
+opencv-python = "*"
+
+[dev-packages]
+black = "*"
+isort = "*"
+pylint = "*"
+pre-commit = "*"
+pyright = "*"
+
+[requires]
+python_version = "3.11"

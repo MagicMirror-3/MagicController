@@ -1,9 +1,0 @@
-opencv-python==4.5.3.56
-cmake
-dlib
-numpy
-imutils
-tensorflow
-falcon
-requests
-loguru

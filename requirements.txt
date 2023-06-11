@@ -1,0 +1,2 @@
+# This project relies on pipenv for requirements
+pipenv
