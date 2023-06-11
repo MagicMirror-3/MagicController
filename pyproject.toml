@@ -1,0 +1,64 @@
+[project]
+requires-python = ">=3.11"
+name = "MagicController"
+readme = "README.md"
+license = "LICENSE.md"
+
+[tool.black]
+line-length = 90
+target-version = ['py311']
+
+[tool.isort]
+atomic = true
+profile = "black"
+line_length = 90
+
+[tool.pylint.main]
+py-version = "3.11"
+
+[tool.pylint.basic]
+module-naming-style = "snake_case"
+class-naming-style = "PascalCase"
+class-const-naming-style = "UPPER_CASE"
+function-naming-style = "snake_case"
+method-naming-style = "snake_case"
+class-attribute-naming-style = "any"
+attr-naming-style = "snake_case"
+const-naming-style = "UPPER_CASE"
+variable-naming-style = "snake_case"
+
+good-names = ["i", "j", "k", "ex", "Run", "_"]
+
+[tool.pylint.design]
+# exclude-too-few-public-methods =
+# ignored-parents =
+#max-args = 5
+#max-attributes = 7
+#max-bool-expr = 5
+#max-branches = 12
+#max-locals = 15
+#max-parents = 7
+#max-public-methods = 20
+#max-returns = 6
+#max-statements = 50
+#min-public-methods = 2
+
+[tool.pylint.format]
+max-line-length = 90
+
+[tool.pylint.logging]
+logging-format-style = "new"
+logging-modules = ["loguru"]
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = [
+
+]
+
+[tool.pylint.miscellaneous]
+notes = ["FIXME", "TODO"]
+
+[tool.pyright]
+reportMissingImports = true
+reportMissingTypeStubs = false
+pythonVersion = "3.11"
