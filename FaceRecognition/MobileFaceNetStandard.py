@@ -10,12 +10,13 @@ loading: https://stackoverflow.com/questions/51278213/what-is-the-use-of-a-pb-fi
 
 load frozen graph: https://leimao.github.io/blog/Save-Load-Inference-From-TF2-Frozen-Graph/
 """
+import os
 import platform
 
-import numpy as np
-import os
 import cv2 as cv
 import dlib
+import numpy as np
+from loguru import logger
 
 from .MobileFaceNet import MobileFaceNet, import_tensorflow
 
@@ -42,9 +43,9 @@ class MobileFaceNetStandard(MobileFaceNet):
             self.inputs_placeholder = tf.compat.v1.get_default_graph().get_tensor_by_name("input:0")
             self.embeddings = tf.compat.v1.get_default_graph().get_tensor_by_name("embeddings:0")
 
-            print("Loaded MobileFaceNet model")
+            logger.debug("Loaded MobileFaceNet model")
         else:
-            print('Found no model')
+            logger.warning('Found no model')
 
     def calculate_embedding(self, img):
         feed_dict = {self.inputs_placeholder: self.preprocess_image(img)}

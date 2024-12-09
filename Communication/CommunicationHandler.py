@@ -1,10 +1,11 @@
 import json
 import threading
-from threading import Thread, Event
+from threading import Thread
 from wsgiref.simple_server import make_server
 
 import falcon
 import requests
+from loguru import logger
 
 from DatabaseAdapter import DatabaseAdapter
 from util import get_image_from_base64
@@ -18,6 +19,8 @@ class Route:
 
 class CommunicationHandler:
     def __init__(self, mediator, host):
+        logger.debug("Starting the CommunicationHandler...")
+
         # database connection
         super().__init__()
 
@@ -33,13 +36,17 @@ class CommunicationHandler:
         self.thread = Thread(target=self.run, name="CommunicationHandler")
         self.thread.start()
 
+        logger.success("CommunicationHandler started!")
+
     @staticmethod
     def refresh_layout():
+        logger.debug("Requesting the layout on the mirror")
+
         def request_refresh():
             try:
                 requests.request(method="post", url="http://localhost:8080/refresh")
             except requests.exceptions.ConnectionError:
-                print("Could not refresh the layout")
+                logger.error("Could not refresh the layout")
 
         Thread(target=request_refresh).start()
 
@@ -51,7 +58,6 @@ class CommunicationHandler:
             self.mediator = mediator
 
         def set_registration_successful(self, event, success):
-            print("call reg_successful")
             self.registration_successful = success
             event.set()
 
@@ -73,7 +79,11 @@ class CommunicationHandler:
             }
 
             """
+
             data = req.get_media()
+
+            logger.trace(f"Trying to create a user with params '{data}'")
+
             images = data["images"][1:-1].split(",")
             # with open("images.txt", "w") as f:
             #    f.write(data["images"])
@@ -94,11 +104,15 @@ class CommunicationHandler:
             # When registration was successful, add the user to the database
             if self.registration_successful:
                 # When face_authentication returns true, the user was created.
+                logger.success("New user created!")
+
                 resp.status = falcon.HTTP_201
                 resp.media = user_id
                 self.db.insert_user(data["firstname"], data["lastname"])
             else:
                 # When it returns false, the user was not created, because the request did not contain good images
+                logger.warning("User not created! Pictures where not good enough")
+
                 resp.status = falcon.HTTP_400
 
     class GetUsers(Route):
@@ -113,6 +127,8 @@ class CommunicationHandler:
             }
 
             """
+
+            logger.trace("All users requested!")
 
             results = self.db.get_users()
 
@@ -138,6 +154,8 @@ class CommunicationHandler:
             """
 
             request_data = req.get_media()
+
+            logger.trace(f"Updating user data to '{request_data}'")
 
             self.db.update_user(request_data['user_id'],
                                 request_data['firstname'],
@@ -175,6 +193,9 @@ class CommunicationHandler:
             """
 
             user_id = req.params['user_id']
+
+            logger.trace(f"Layout from '{user_id}' requested")
+
             layout = self.db.get_layout_of_user(user_id)
 
             resp.media = json.loads(layout)
@@ -197,6 +218,8 @@ class CommunicationHandler:
             request_data = req.get_media()
             user_id = request_data['user_id']
 
+            logger.trace(f"Deletion of user '{user_id}' requested!")
+
             # delete user from database
             self.db.delete_user(user_id)
 
@@ -206,6 +229,10 @@ class CommunicationHandler:
             resp.status = falcon.HTTP_201
 
     class SetLayout(Route):
+        def __init__(self, db, mediator):
+            super().__init__(db)
+            self.mediator = mediator
+
         def on_post(self, req, resp):
             """
             Sets the layout of a given user. It expects a JSON with the following structure.
@@ -224,9 +251,17 @@ class CommunicationHandler:
             elif isinstance(request_data['layout'], str):
                 layout = request_data['layout']
             else:
+                logger.error(f"The given layout has an invalid format: {request_data}")
                 raise Exception
 
-            self.db.set_layout_of_user(request_data['user_id'], layout)
+            user_id = request_data['user_id']
+
+            logger.trace(f"Layout update of user '{user_id}' to '{layout}' requested!")
+
+            self.db.set_layout_of_user(user_id, layout)
+
+            # Notify the MagicController of the layout update
+            self.mediator.notify(self, user_id)
 
             resp.status = falcon.HTTP_201
 
@@ -241,9 +276,13 @@ class CommunicationHandler:
             module_name = request_data['module']
 
             config = request_data["configuration"]
+
+            logger.trace(f"Module configuration of '{module_name}' from user '{user_id}' updated to '{config}'")
+
             if isinstance(config, dict):
                 config = json.dumps(config)
             elif not isinstance(config, str):
+                logger.error(f"Module configuration has an invalid format: '{config}'")
                 raise Exception
 
             self.db.update_module_config(user_id, module_name, config)
@@ -278,6 +317,8 @@ class CommunicationHandler:
 
             """
 
+            logger.trace("Module list requested")
+
             modules = self.db.get_module_configs(req.params['user_id'])
 
             # convert the database result into json
@@ -290,17 +331,20 @@ class CommunicationHandler:
 
     class IsMagicMirror:
         def on_get(self, req, resp):
+            logger.trace("IsMagicMirror requested")
+
             resp.status = falcon.HTTP_200
 
     def run(self):
         self.db = DatabaseAdapter()
 
+        logger.trace("Creating all routes")
         # Resources are represented by long-lived class instances
         createUser = self.CreateUser(self.db, self.mediator)
         getUsers = self.GetUsers(self.db)
         updateUser = self.UpdateUser(self.db)
         getLayout = self.GetLayout(self.db)
-        setLayout = self.SetLayout(self.db)
+        setLayout = self.SetLayout(self.db, self.mediator)
         deleteUser = self.DeleteUser(self.db, self.mediator)
         getModules = self.GetModules(self.db)
         updateModuleConfiguration = self.UpdateModuleConfiguration(self.db)
@@ -323,10 +367,10 @@ class CommunicationHandler:
         with make_server(self.host, 5000, self.app) as httpd:
             # Serve until process is killed
             try:
-                print('Serving on port 5000...')
+                logger.debug(f'Serving on {self.host}:5000')
                 httpd.serve_forever()
             except KeyboardInterrupt:
-                print("Server shutdown.")
+                logger.trace("Server shutdown.")
             finally:
                 self.db.close()
 

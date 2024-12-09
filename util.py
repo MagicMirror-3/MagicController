@@ -136,10 +136,10 @@ def thresholded_knn(dataset, new_point, distance_function, threshold, k):
 
     # when first common label and second common label have same count, return None
     if len(most_common_labels) >= 2 and most_common_labels[0][1] == most_common_labels[1][1]:
-        print(most_common_labels, " : Identified None")
+        # print(most_common_labels, " : Identified None")
         return None
     # return most common label
-    print(most_common_labels, " : Identified ", most_common_labels[0][0])
+    # print(most_common_labels, " : Identified ", most_common_labels[0][0])
     return most_common_labels[0][0]
 
 
